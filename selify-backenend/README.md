@@ -8,7 +8,7 @@
 
 1. clone the respository
    ```shell
-   $ git clone https://github.com/David-mwas/zentalk-backend.git
+   $ git clone https://github.com/David-mwas/selify-backenend.git
    $ cd zentalk-backend
    $ touch .env
    ```
