@@ -1,6 +1,6 @@
-# Selify - A Marketplace for Unused Items
+# Selify - A Marketplace for Unused Items or Items you don't need anymore
 
-Selify is an innovative platform designed to help users declutter their lives by selling unused items. Whether you're looking to buy or sell, Selify connects individuals through an easy-to-use marketplace. The app is built with Expo for cross-platform mobile app development and provides various features like product listings,realtime messaging, and more.
+Selify is a platform designed to help users declutter their lives by selling unused items and items they don't need anymore. Whether you're looking to buy or sell, Selify connects individuals through an easy-to-use marketplace. The app is built with Expo for cross-platform mobile app development and provides various features like product listings,realtime messaging, and more.
 
 ## Features
 
