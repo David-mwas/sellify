@@ -6,6 +6,8 @@ const createError = require("http-errors");
 const multer = require("multer");
 const { authRouter } = require("./routes/auth");
 const { userRouter } = require("./routes/user");
+const { productRouter } = require("./routes/product");
+const { categoryRouter } = require("./routes/category");
 require("./helpers/mongoDBhelpers");
 
 const upload = multer();
@@ -28,6 +30,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1", authRouter);
 app.use("/api/v1", userRouter);
+app.use("/api/v1", productRouter);
+app.use("/api/v1", categoryRouter);
 // error handling
 app.use(async (req, res, next) => {
   const error = createError.NotFound("The page does not exist");
