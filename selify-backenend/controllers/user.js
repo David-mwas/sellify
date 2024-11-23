@@ -22,3 +22,22 @@ exports.editProfile = async (req, res, next) => {
     email: user.email,
   });
 };
+
+// Save user's Expo push token
+exports.savePushToken = async (req, res) => {
+  try {
+    const { userId, expoPushToken } = req.body;
+
+    if (!userId || !expoPushToken) {
+      return res
+        .status(400)
+        .json({ message: "User ID and push token are required" });
+    }
+
+    await userModel.findByIdAndUpdate(userId, { expoPushToken });
+
+    res.status(200).json({ message: "Push token saved successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
