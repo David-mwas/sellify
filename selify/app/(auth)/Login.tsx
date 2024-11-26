@@ -11,6 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  Image,
 } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "@/contexts/AuthContext";
@@ -20,7 +21,7 @@ import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom colors based on themes
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [Email, setEmail] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -37,13 +38,13 @@ export default function Login() {
   const { isDarkMode } = themeContext;
 
   const handleLogin = () => {
-    if (!username || !password) {
+    if (!Email || !password) {
       setModalMessage("All fields are required");
       setIsModalVisible(true);
       return;
     }
 
-    login(username, password);
+    login(Email, password);
     Keyboard.dismiss();
   };
 
@@ -82,26 +83,37 @@ export default function Login() {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="gap-4">
-            <Text
+            <Image
+              source={require("../../assets/images/selify.png")}
+              style={{
+                width: 200,
+                height: 100,
+                alignSelf: "center",
+                resizeMode: "contain",
+                // backgroundColor: "red",
+                top: 10,
+              }}
+            />
+            {/* <Text
               style={{ color: textColor }}
-              className="font-extrabold text-xl uppercase text-center mb-4"
+              className="font-extrabold text-xl uppercase text-center mb-2"
             >
-              Login To Fololimo
-            </Text>
+              Login To Selify
+            </Text> */}
 
-            {/* Username input with icon */}
+            {/* Email input with icon */}
             <Text className="font-bold" style={{ color: textColor }}>
-              Username
+              Email
             </Text>
             <View
               style={{ borderColor: inputBorderColor }}
               className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
             >
-              <Ionicons name="person-outline" size={20} color={iconColor} />
+              <Ionicons name="mail-outline" size={20} color={iconColor} />
               <TextInput
-                onChange={(e) => setUsername(e.nativeEvent.text)}
+                onChange={(e) => setEmail(e.nativeEvent.text)}
                 className="ml-2 flex-1"
-                placeholder="Username..."
+                placeholder="Email..."
                 placeholderTextColor={iconColor}
                 style={{ color: textColor }}
               />
@@ -151,7 +163,7 @@ export default function Login() {
 
             {/* Login button */}
             <TouchableOpacity
-              className="bg-green-500 rounded-lg w-full px-4 py-3"
+              className="bg-[#c58343cc] rounded-lg w-full px-4 py-4"
               onPress={handleLogin}
             >
               <Text className="text-white text-center font-bold">Login</Text>
@@ -161,7 +173,7 @@ export default function Login() {
             <View className="w-full flex flex-row justify-start mt-2">
               <TouchableOpacity
                 className="flex flex-row justify-center items-center"
-                onPress={() => router.replace("/(auth)/Register")}
+                onPress={() => router.replace("/(auth)/register")}
               >
                 <Text
                   style={{ color: Colors.light.tint }}
@@ -200,7 +212,7 @@ export default function Login() {
           <TouchableOpacity
             onPress={() => setIsModalVisible(false)}
             style={{
-              backgroundColor: "green",
+              backgroundColor: "#c58343cc",
               padding: 10,
               marginTop: 20,
               borderRadius: 5,

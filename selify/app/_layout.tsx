@@ -8,7 +8,7 @@ export default function Layout() {
     <AuthProvider>
       <OnboardingProvider>
         <ThemeProvider>
-          <Stack>
+          <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(modals)" options={{ headerShown: false }} />

@@ -1,5 +1,5 @@
-const tintColorLight = "#1bbe6d";
-const tintColorDark = "#1bbe6d";
+const tintColorLight = "#c58343cc";
+const tintColorDark = "#c58343cc";
 // #f36561;
 export const Colors = {
   light: {
@@ -25,9 +25,9 @@ export const Colors = {
     headerBackground: "#151718",
     headerText: "#ECEDEE",
     cardBg: "#1C1C1C",
-    scrollBg: "#235357",
+    scrollBg: "#c58343cc)",
     textDisabled: "#9BA1A6",
   },
-  darkGreen: "#235357",
-  lightGreen: "#C3FBA9",
+  darkGreen: "#c58343cc",
+  lightGreen: "#c58343cc",
 };
