@@ -91,7 +91,7 @@ export default function Login() {
                 alignSelf: "center",
                 resizeMode: "contain",
                 // backgroundColor: "red",
-                top: 10,
+                top: 2,
               }}
             />
             {/* <Text

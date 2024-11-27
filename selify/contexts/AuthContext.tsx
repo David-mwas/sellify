@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from "react";
 import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import { router } from "expo-router";
+import { LocationObject } from "@/constants/types";
 
 interface AuthContextType {
   userToken: string | null;
@@ -11,8 +12,10 @@ interface AuthContextType {
   register: (
     email: string,
     username: string,
+    phoneNumber: string,
     password1: string,
-    password2: string
+    password2: string,
+    location: LocationObject
   ) => Promise<void>;
 }
 
@@ -80,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await SecureStore.setItemAsync("Token", token);
         setUserToken(token);
 
-        router.replace("/(tabs)/index");
+        router.replace("/(tabs)");
         setIsLoading(false);
         // Alert.alert("Login Successful", "You are now logged in");
       }
@@ -110,8 +113,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (
     email: string,
     username: string,
+    phoneNumber: string,
     password1: string,
-    password2: string
+    password2: string,
+    location: LocationObject
   ) => {
     setIsLoading(true);
 
@@ -127,8 +132,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           body: JSON.stringify({
             username: username,
             email: email,
+            phoneNumber: phoneNumber,
             password1: password1,
             password2: password2,
+            location: location,
           }), // Send username and password
         }
       );

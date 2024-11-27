@@ -20,16 +20,27 @@ import { Link, router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
 import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom colors based on themes
+import { useLocation } from "@/hooks/useLocation";
+import { LocationObject } from "@/constants/types";
+import { usePushNotificationToken } from "@/hooks/useExpoPushToken";
 
 export default function register() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCOpen, setIsCOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+
+  const { location, errorMsg, isLocationLoading } = useLocation();
+  const {
+    pushToken,
+    errorMsg: error,
+    isLoading: loading,
+  } = usePushNotificationToken();
 
   // Get AuthContext and check if it's defined
   const authContext = useContext(AuthContext);
@@ -41,7 +52,11 @@ export default function register() {
 
   const { register, isLoading } = authContext;
   const { isDarkMode } = themeContext;
-
+  console.log("pushToken", pushToken);
+  const LocationObject: LocationObject = {
+    latitude: location?.coords.latitude ?? 0,
+    longitude: location?.coords.longitude ?? 0,
+  };
   const handleSubmit = () => {
     Keyboard.dismiss();
     if (!username || !email || !password || !confirmPassword) {
@@ -57,8 +72,16 @@ export default function register() {
     const emailTest =
       /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-    if (!emailTest.test(email)) {
+    if (!emailTest.test(email.toLowerCase().trim())) {
       setModalMessage("Invalid email address");
+      setIsModalVisible(true);
+      return;
+    }
+    const phoneTest = /^(\+254|0)?(7|1)\d{8}$|^(\+254|0)?20\d{6}$/;
+    if (!phoneTest.test(phoneNumber)) {
+      setModalMessage(
+        "Invalid kenyan phone number, Mobile numbers: Start with 07, 01, or 2547, 2541, followed by 7 digits. Landline numbers: Start with 020 or 25420, followed by 6 digits."
+      );
       setIsModalVisible(true);
       return;
     }
@@ -70,7 +93,14 @@ export default function register() {
       setIsModalVisible(true);
       return;
     }
-    register(email, username, password, confirmPassword);
+    register(
+      email,
+      username,
+      phoneNumber,
+      password,
+      confirmPassword,
+      LocationObject
+    );
   };
 
   const handleOpen = () => setIsOpen((prev) => !prev);
@@ -114,7 +144,7 @@ export default function register() {
                 alignSelf: "center",
                 resizeMode: "contain",
                 // backgroundColor: "red",
-                top: 10,
+                top: 2,
               }}
             />
             {/* <Text
@@ -149,6 +179,22 @@ export default function register() {
                 onChange={(e) => setEmail(e.nativeEvent.text)}
                 className="ml-2 flex-1"
                 placeholder="Email..."
+                placeholderTextColor={iconColor}
+                style={{ color: textColor }}
+              />
+            </View>
+            {/* Phone number input with icon */}
+            <View
+              style={{ borderColor: inputBorderColor }}
+              className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
+            >
+              <Feather name="phone" size={20} color={iconColor} />
+              <TextInput
+                keyboardType="phone-pad"
+                // maxLength={10}
+                onChange={(e) => setPhoneNumber(e.nativeEvent.text)}
+                className="ml-2 flex-1"
+                placeholder="Phone number eg 07xxxxxxxx..."
                 placeholderTextColor={iconColor}
                 style={{ color: textColor }}
               />
