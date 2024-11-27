@@ -8,11 +8,12 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../controllers/category");
+const { verifyAccessToken } = require("../helpers/getJwt");
 
-categoryRouter.post("/category", createCategory);
+categoryRouter.post("/category", verifyAccessToken, createCategory);
 categoryRouter.get("/category", getAllCategories);
 categoryRouter.get("/category/:id", getCategoryById);
-categoryRouter.put("/category/:id", updateCategory);
-categoryRouter.delete("/category/:id", deleteCategory);
+categoryRouter.put("/category/:id", verifyAccessToken, updateCategory);
+categoryRouter.delete("/category/:id", verifyAccessToken, deleteCategory);
 
 module.exports = { categoryRouter };

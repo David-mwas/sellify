@@ -8,6 +8,7 @@ const { sendMail } = require("../utils/sendMail");
 exports.Register = async (req, res, next) => {
   try {
     const data = req.body;
+    console.log(data);
     const regex = /^\+\d{1,3}\d{3,}$/;
     const result = registerSchema.validate(data);
     if (result?.error) {
@@ -22,7 +23,7 @@ exports.Register = async (req, res, next) => {
     const user = new userModel(data);
     await user.save();
 
-    return res.status(200).json({
+    return res.status(201).json({
       status: "success",
       message: "user registerd successfully",
       userId: user?._id,
@@ -56,6 +57,7 @@ exports.login = async (req, res, next) => {
       access_token: token,
     });
   } catch (error) {
+    console.error(error);
     next(error);
   }
 };

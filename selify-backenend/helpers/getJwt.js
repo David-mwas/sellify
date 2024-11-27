@@ -34,7 +34,8 @@ const verifyAccessToken = (req, res, next) => {
     next(error);
   }
   try {
-    const token = headers.split(" ")[1];
+    const token = headers?.split(" ")[1];
+    console.log(token);
     if (!token) {
       throw createError.Unauthorized();
     }
