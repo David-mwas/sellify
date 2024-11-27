@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "251116318497",
+    "project_id": "application-91b1d",
+    "storage_bucket": "application-91b1d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251116318497:android:e59f9155157cfc39dd1860",
+        "android_client_info": {
+          "package_name": "com.wabunifu.fololimo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdsx8YafBHDCkrWLFrFSwSeCTw2gdEjQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

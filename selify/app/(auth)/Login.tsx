@@ -43,7 +43,13 @@ export default function Login() {
       setIsModalVisible(true);
       return;
     }
-
+    const emailTest =
+      /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    if (!emailTest.test(Email.trim())) {
+      setModalMessage("Invalid email address");
+      setIsModalVisible(true);
+      return;
+    }
     login(Email, password);
     Keyboard.dismiss();
   };
@@ -111,7 +117,7 @@ export default function Login() {
             >
               <Ionicons name="mail-outline" size={20} color={iconColor} />
               <TextInput
-                onChange={(e) => setEmail(e.nativeEvent.text)}
+                onChange={(e) => setEmail(e.nativeEvent.text.trim())}
                 className="ml-2 flex-1"
                 placeholder="Email..."
                 placeholderTextColor={iconColor}

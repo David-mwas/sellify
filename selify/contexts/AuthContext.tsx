@@ -3,10 +3,11 @@ import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { LocationObject } from "@/constants/types";
+import { apiUrl } from "@/constants/api";
 
 interface AuthContextType {
   userToken: string | null;
-  login: (username: string, password: string) => Promise<void>; // Change to include credentials
+  login: (email: string, password: string) => Promise<void>; // Change to include credentials
   logout: () => Promise<void>;
   isLoading: boolean;
   register: (
@@ -15,7 +16,8 @@ interface AuthContextType {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject
+    location: LocationObject,
+    pushToken: string
   ) => Promise<void>;
 }
 
@@ -49,43 +51,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadToken();
   }, [userToken]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     setIsLoading(true);
 
     try {
       // Call your authentication API here to get the token
-      const response = await fetch(
-        `https://fololimo-api-eight.vercel.app/api/v1/users/login/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: username,
-            password: password,
-          }), // Send username and password
-        }
-      );
+      const response = await fetch(`${apiUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+        }), // Send username and password
+      });
 
       if (!response.ok) {
         const data = await response.json();
 
         setIsLoading(false);
         Alert.alert("Login failed", "Invalid credentials");
-        throw new Error("Login failed"); // Handle failed login
+        // throw new Error("Login failed"); // Handle failed login
       }
 
       if (response.status === 200) {
         const data = await response.json();
-        const token = data.key; // Assuming your API returns the token in this format
+        console.log(data?.access_token);
+        // const token = data.key; // Assuming your API returns the token in this format
 
-        await SecureStore.setItemAsync("Token", token);
-        setUserToken(token);
+        await SecureStore.setItemAsync("Token", data?.access_token);
+        setUserToken(data?.access_token);
 
         router.replace("/(tabs)");
         setIsLoading(false);
-        // Alert.alert("Login Successful", "You are now logged in");
+        Alert.alert("Login Successful", "You are now logged in");
       }
       if (response.status === 401) {
         const data = await response.json();
@@ -103,8 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       setIsLoading(false);
-      Alert.alert("Login failed " + error);
-      console.error("Login failed:", error);
+      // Alert.alert("Login failed " + error);
+      console.log("Login failed:", error);
     } finally {
       setIsLoading(false);
     }
@@ -116,36 +116,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject
+    location: LocationObject,
+    pushToken: string
   ) => {
     setIsLoading(true);
 
     try {
       // Call your authentication API here to get the token
-      const response = await fetch(
-        `https://fololimo-api-eight.vercel.app/api/v1/users/register/ `,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: username,
-            email: email,
-            phoneNumber: phoneNumber,
-            password1: password1,
-            password2: password2,
-            location: location,
-          }), // Send username and password
-        }
-      );
+      const response = await fetch(`${apiUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          phoneNumber: phoneNumber,
+          password: password1,
+          confirm_password: password2,
+          location: location,
+          expoPushToken: pushToken,
+        }), // Send username and password
+      });
 
       if (!response.ok) {
         const data = await response.json();
-
+        console.log(data?.message);
         setIsLoading(false);
-        Alert.alert("Registration failed");
-        throw new Error("Register failed"); // Handle failed login
+        Alert.alert("Registration failed: " + data?.message);
+        // throw new Error("Register failed"); // Handle failed login
       }
 
       if (response.status === 201) {

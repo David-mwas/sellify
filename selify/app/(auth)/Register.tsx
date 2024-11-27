@@ -57,6 +57,13 @@ export default function register() {
     latitude: location?.coords.latitude ?? 0,
     longitude: location?.coords.longitude ?? 0,
   };
+  if (error || errorMsg) {
+    Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
+  }
+  // if (!pushToken || !location) {
+  //   console.log("Push token or location not found");
+  //   return;
+  // }
   const handleSubmit = () => {
     Keyboard.dismiss();
     if (!username || !email || !password || !confirmPassword) {
@@ -72,7 +79,7 @@ export default function register() {
     const emailTest =
       /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
 
-    if (!emailTest.test(email.toLowerCase().trim())) {
+    if (!emailTest.test(email.trim())) {
       setModalMessage("Invalid email address");
       setIsModalVisible(true);
       return;
@@ -99,7 +106,8 @@ export default function register() {
       phoneNumber,
       password,
       confirmPassword,
-      LocationObject
+      LocationObject,
+      pushToken!
     );
   };
 
@@ -176,7 +184,7 @@ export default function register() {
             >
               <Ionicons name="mail-outline" size={20} color={iconColor} />
               <TextInput
-                onChange={(e) => setEmail(e.nativeEvent.text)}
+                onChange={(e) => setEmail(e.nativeEvent.text.trim())}
                 className="ml-2 flex-1"
                 placeholder="Email..."
                 placeholderTextColor={iconColor}

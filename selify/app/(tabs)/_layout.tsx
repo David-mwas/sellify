@@ -17,6 +17,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "react-native";
 import OnBoarding from "../(auth)/Onboarding";
 import Login from "../(auth)/Login";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const authContext = useContext(AuthContext);
@@ -88,7 +89,15 @@ export default function TabLayout() {
           tabBarStyle: { backgroundColor },
           headerStyle: { backgroundColor: headerBackgroundColor },
           headerTintColor: headerTextColor,
-          tabBarLabelStyle: { fontSize: 12 },
+
+          tabBarLabelStyle: {
+            fontSize: 12,
+            elevation: 0.1,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+          },
         }}
       >
         <Tabs.Screen
@@ -101,29 +110,36 @@ export default function TabLayout() {
             headerShown: false,
           }}
         />
-
+        {/* <Tabs.Screen name="index" options={{ href: null }} /> */}
         <Tabs.Screen
           name="add"
           options={{
-            title: "Add",
+            title: "Post",
             headerShown: false,
+            tabBarStyle: { position: "relative" }, // Ensure the tab bar allows customization
             tabBarIcon: ({ color }) => (
               <View
                 style={{
                   alignItems: "center",
                   justifyContent: "center",
-                  height: 56,
-                  width: 56,
-                  borderRadius: 28,
+                  height: 60,
+                  width: 60,
+                  borderRadius: 30,
                   backgroundColor: activeTintColor,
-                  marginBottom: 26,
+                  marginBottom: 30,
+                  elevation: 30, // Add elevation for Android
+                  shadowColor: "#000", // Add shadow for iOS
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
                 }}
               >
-                <FontAwesome6 name="add" size={28} color={"#fff"} />
+                <AntDesign name="pluscircle" size={30} color="#fff" />
               </View>
             ),
           }}
         />
+
         {/* <Tabs.Screen
           name="inventory"
           options={{
@@ -137,9 +153,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="account"
           options={{
-            title: "Settings",
+            title: "account",
+
             tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="cog" color={color} />
+              <Ionicons name="person" size={28} color={color} />
             ),
           }}
         />

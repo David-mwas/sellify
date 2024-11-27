@@ -1,8 +1,12 @@
 import React from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 function add() {
-  return <View>add</View>;
+  return (
+    <View>
+      <Text>add</Text>
+    </View>
+  );
 }
 
 export default add;
