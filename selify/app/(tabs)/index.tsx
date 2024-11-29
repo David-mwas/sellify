@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -10,11 +10,18 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Link, router } from "expo-router";
+import { Entypo } from "@expo/vector-icons";
+import { ThemeContext } from "@/contexts/ThemeContext";
+import { Colors } from "@/constants/Colors";
 
 function Index() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const themeContext = useContext(ThemeContext); // Access the theme context
+  const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -165,11 +172,24 @@ function Index() {
                   borderRadius: 15,
                 }}
               />
-              <View className="mt-2">
+              <View className="pt-2 pl-6">
                 <Text className="text-lg font-bold text-[#333]">
                   {item.title}
                 </Text>
-                <Text className="text-lg font-semibold text-md">
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: themeColors.tint,
+                    marginBottom: 5,
+                  }}
+                >
+                  <Text>
+                    <Entypo
+                      name="price-tag"
+                      size={20}
+                      color={themeColors.tint}
+                    />
+                  </Text>
                   KES {item.price}
                 </Text>
               </View>

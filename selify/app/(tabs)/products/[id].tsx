@@ -1,61 +1,271 @@
-import { View, Text, Image, StyleSheet } from "react-native";
-import React, { useEffect } from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { Stack } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import ParallaxScrollView from "../../../app-example/components/ParallaxScrollView";
-import { StatusBar } from "expo-status-bar";
+
+import {
+  GestureHandlerRootView,
+  Pressable,
+} from "react-native-gesture-handler";
+import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "@/contexts/ThemeContext";
+import { Colors } from "@/constants/Colors";
+
 const product = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const title = searchParams.get("title");
   const price = searchParams.get("price");
   const image = searchParams.get("image");
-  const location = searchParams.get("location");
+
+  const themeContext = useContext(ThemeContext); // Access the theme context
+  const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
+
+  interface LocationData {
+    lat: string;
+    lon: string;
+    display_name: string;
+    name?: string;
+  }
+
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
+  // const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     const fetchLocation = async () => {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=0.2861635&lon=34.7630199&format=json`
-      );
+      const headersList = {
+        Accept: "*/*",
+        "Content-Type": "application/json",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+      };
 
-      const data = await res.json();
-      console.log(data);
+      try {
+        const res = await fetch(
+          "https://nominatim.openstreetmap.org/reverse?lat=0.2861635&lon=34.7630199&format=json",
+          { method: "GET", headers: headersList }
+        );
+        const data = await res.json();
+        setLocationData(data);
+      } catch (error) {
+        console.log("Error " + error);
+      }
     };
     fetchLocation();
   }, []);
-  console.log(location);
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={<Image source={{ uri: image || "" }} style={styles.image} />}
-    >
-      <View style={styles.container}>
-        <Stack.Screen
-          options={{
-            title: id ? id.toString() : "Default Title",
-            headerShown: false,
-            headerTitleAlign: "center",
-          }}
-        />
 
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.price}>KES {price}</Text>
+  // ref
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  const renderLocationDetails = () => {
+    if (!locationData) return <Text>Loading location...</Text>;
+
+    const { display_name } = locationData;
+
+    return (
+      <View style={styles.locationCard}>
+        <View className="flex flex-row w-full ">
+          <Ionicons name="location" size={18} color={themeColors.tint} />
+          <Text
+            className="font-bold text-lg"
+            style={{ color: themeColors.tint, marginLeft: 5 }}
+          >
+            Address
+          </Text>
+        </View>
+        <Text style={styles.locationItem}>{display_name || "N/A"}</Text>
+        <Pressable onPress={handlePresentModalPress} style={styles.mapButton}>
+          <View className="flex flex-row justify-center items-center text-center gap-2">
+            <FontAwesome5 name="map-marked-alt" size={24} color="white" />
+            <Text style={styles.mapButton}>View On Map</Text>
+          </View>
+        </Pressable>
       </View>
-    </ParallaxScrollView>
+    );
+  };
+  // console.log(locationData);
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <ParallaxScrollView
+          headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+          headerImage={
+            <Image source={{ uri: image || "" }} style={styles.image} />
+          }
+        >
+          <View style={styles.container}>
+            <Stack.Screen
+              options={{
+                title: id ? id.toString() : "Default Title",
+                headerShown: false,
+                headerTitleAlign: "center",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "bold",
+                marginBottom: 5,
+                color: themeColors.text,
+              }}
+            >
+              {title}
+            </Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color: themeColors.tint,
+                marginBottom: 5,
+              }}
+            >
+              <Text>
+                <Entypo name="price-tag" size={20} color={themeColors.tint} />
+              </Text>
+              KES {price}
+            </Text>
+
+            <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-2">
+              <Image
+                source={{ uri: image || "" }}
+                className="w-[3rem] h-[3rem] object-contain rounded-full"
+              />
+              <View className="flex-1">
+                <Text className={`font-bold text-[${themeColors.tint}]`}>
+                  Name
+                </Text>
+                <Text className={`font-semibold text-[${themeColors.tint}]`}>
+                  5 Listings
+                </Text>
+              </View>
+              <View className="self-center">
+                <Ionicons
+                  name="chevron-forward"
+                  size={24}
+                  color={themeColors.tint}
+                  className="ml-auto"
+                />
+              </View>
+            </TouchableOpacity>
+            {/* <View
+              className="w-full h-[.3px] mb-2"
+              style={{ backgroundColor: themeColors.tint }}
+            /> */}
+            <TouchableOpacity
+              className="w-full p-4 rounded-[30px] mt-6"
+              style={{ backgroundColor: themeColors.tint }}
+            >
+              <Text className="text-white text-center font-semibold">
+                Contact Seller
+              </Text>
+            </TouchableOpacity>
+            {renderLocationDetails()}
+          </View>
+        </ParallaxScrollView>
+
+        {locationData && (
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            snapPoints={["50%", "90%"]}
+            style={styles.bottomSheet}
+          >
+            <BottomSheetView style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                initialRegion={{
+                  latitude: parseFloat(locationData.lat),
+                  longitude: parseFloat(locationData.lon),
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: parseFloat(locationData.lat),
+                    longitude: parseFloat(locationData.lon),
+                  }}
+                  title={locationData.name || "Location"}
+                  description={locationData.display_name}
+                />
+              </MapView>
+            </BottomSheetView>
+          </BottomSheetModal>
+        )}
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 };
 
 export default product;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 5 },
+  container: { flex: 1, padding: 5, gap: 10 },
   image: { width: "100%", height: 300, marginBottom: 5 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 5 },
-  price: { fontSize: 20, color: "green", marginBottom: 5 },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+
+  locationCard: {
+    // padding: 15,
+    paddingHorizontal: 4,
+    paddingTop: 20,
+    paddingBottom: 10,
+    marginTop: 15,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    shadowColor: "#c58343cc",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  locationItem: { fontSize: 16, marginBottom: 5 },
+  boldText: { fontWeight: "bold" },
+  mapButton: {
+    paddingVertical: 6,
+    textAlign: "center",
+    backgroundColor: "#aaa",
+    color: "#fff",
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    display: "flex",
+    fontWeight: "semibold",
+  },
+  mapButtonText: { color: "#fff", fontSize: 16 },
+  mapContainer: { flex: 1 },
+  map: { width: "100%", height: "100%" },
+  bottomSheet: {
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 1 },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 4,
+    // elevation: 1,
   },
 });
