@@ -12,8 +12,6 @@ import { OnboardingContext } from "@/contexts/OnBoardingContext"; // For onboard
 import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom color palette
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Image } from "react-native";
 import OnBoarding from "../(auth)/Onboarding";
 import Login from "../(auth)/Login";
@@ -85,12 +83,16 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: activeTintColor,
+          tabBarHideOnKeyboard: true,
+
           animation: "shift",
           tabBarInactiveTintColor: inactiveTintColor,
+
           tabBarStyle: { backgroundColor },
           headerStyle: { backgroundColor: headerBackgroundColor },
           headerTintColor: headerTextColor,
           headerShown: false,
+
           tabBarLabelStyle: {
             fontSize: 12,
             elevation: 0.1,

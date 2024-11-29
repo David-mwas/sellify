@@ -2,8 +2,8 @@ const { categoryModel } = require("../models/categoryModel");
 
 exports.createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
-    const category = await categoryModel.create({ name });
+    const { name, emoji } = req.body;
+    const category = await categoryModel.create({ name: name, emoji: emoji });
 
     res
       .status(201)
@@ -40,10 +40,11 @@ exports.getCategoryById = async (req, res) => {
 exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, emoji } = req.body;
     const category = await categoryModel.findByIdAndUpdate(
       id,
       { name },
+      { emoji },
       { new: true }
     );
 

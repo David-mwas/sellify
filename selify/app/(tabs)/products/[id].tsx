@@ -182,7 +182,7 @@ const product = () => {
               className="w-full p-4 rounded-[30px] mt-6"
               style={{ backgroundColor: themeColors.tint }}
             >
-              <Text className="text-white text-center font-semibold">
+              <Text className="text-white text-center font-semibold uppercase">
                 Contact Seller
               </Text>
             </TouchableOpacity>

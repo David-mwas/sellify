@@ -5,6 +5,9 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: [true, "Please provide a name"],
   },
+  emoji: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
