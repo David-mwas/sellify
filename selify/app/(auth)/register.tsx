@@ -52,7 +52,7 @@ export default function register() {
 
   const { register, isLoading } = authContext;
   const { isDarkMode } = themeContext;
-  console.log("pushToken", pushToken);
+  // console.log("pushToken", pushToken);
   const LocationObject: LocationObject = {
     latitude: location?.coords.latitude ?? 0,
     longitude: location?.coords.longitude ?? 0,

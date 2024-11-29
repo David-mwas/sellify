@@ -37,6 +37,7 @@ const product = () => {
   const title = searchParams.get("title");
   const price = searchParams.get("price");
   const image = searchParams.get("image");
+  const location = searchParams.get("location");
 
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
@@ -51,7 +52,8 @@ const product = () => {
 
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
-
+  const loc = location ? JSON.parse(location) : null;
+  console.log(loc.latitude, loc.longitude);
   useEffect(() => {
     const fetchLocation = async () => {
       const headersList = {
@@ -62,7 +64,7 @@ const product = () => {
 
       try {
         const res = await fetch(
-          "https://nominatim.openstreetmap.org/reverse?lat=0.2861635&lon=34.7630199&format=json",
+          `https://nominatim.openstreetmap.org/reverse?lat=${loc.latitude}&lon=${loc.longitude}&format=json`,
           { method: "GET", headers: headersList }
         );
         const data = await res.json();
@@ -111,7 +113,7 @@ const product = () => {
       </View>
     );
   };
-  // console.log(locationData);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
