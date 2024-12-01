@@ -180,8 +180,9 @@ exports.deleteProduct = async (req, res) => {
 exports.createProduct = async (req, res, next) => {
   try {
     const userId = req.payload.aud;
-    const { title, price, categoryId, location } = req.body;
-
+    const { title, price, categoryId, description, location } = req.body;
+    // console.log("body ", req.body);
+    console.log("files", req.files);
     // Validate user
     const user = await userModel.findById(userId);
     if (!user) {
@@ -235,6 +236,7 @@ exports.createProduct = async (req, res, next) => {
     const product = new productModel({
       title,
       price,
+      description,
       images,
       categoryId,
       userId,
@@ -254,6 +256,7 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error", error });
+    next(error);
+    // return res.status(500).json({ message: "Server error", error });
   }
 };

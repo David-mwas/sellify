@@ -13,9 +13,10 @@ const {
 } = require("../controllers/product");
 
 const { verifyAccessToken } = require("../helpers/getJwt");
+// const multer = require("multer");
+// const upload = multer(); // Initialize multer for handling file uploads
 const multer = require("multer");
-const upload = multer(); // Initialize multer for handling file uploads
-
+const upload = multer();
 // Routes
 productRouter.get("/products", getAllProducts); // Get all products
 productRouter.get("/products/:id", getProductById); // Get product by ID
@@ -26,7 +27,6 @@ productRouter.get("/products/user/:userId", getProductsByUser); // Get all produ
 productRouter.post(
   "/products",
   verifyAccessToken,
-  upload.array("images"), // Handle file uploads for product creation
   createProduct
 ); // Create a product
 
