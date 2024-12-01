@@ -14,6 +14,7 @@ exports.getAllProducts = async (req, res) => {
   try {
     const products = await productModel
       .find()
+      .sort({ createdAt: -1 })
       .populate("categoryId")
       .populate("userId");
     res.status(200).json({ products });
@@ -180,9 +181,10 @@ exports.deleteProduct = async (req, res) => {
 exports.createProduct = async (req, res, next) => {
   try {
     const userId = req.payload.aud;
-    const { title, price, categoryId, description, location } = req.body;
-    // console.log("body ", req.body);
-    console.log("files", req.files);
+    const { title, price, categoryId, description, latitude, longitude } =
+      req.body;
+    // console.log("body ", latitude, longitude);
+    // console.log("files", req.files);
     // Validate user
     const user = await userModel.findById(userId);
     if (!user) {
@@ -240,12 +242,10 @@ exports.createProduct = async (req, res, next) => {
       images,
       categoryId,
       userId,
-      location: location
-        ? {
-            latitude: location.latitude,
-            longitude: location.longitude,
-          }
-        : undefined,
+      location: {
+        latitude,
+        longitude,
+      },
     });
 
     await product.save();
@@ -257,6 +257,6 @@ exports.createProduct = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     next(error);
-    // return res.status(500).json({ message: "Server error", error });
+    return res.status(500).json({ message: "Server error", error });
   }
 };

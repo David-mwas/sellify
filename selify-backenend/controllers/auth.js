@@ -86,7 +86,7 @@ exports.forgotPassword = async (req, res) => {
     let link = `${process.env.frontendUrl}/reset-password/${token}`;
     const resetLink = `
     <h1>Hello ${exist_user.username}</h1>
-    <h3>Click this link to reset password  for your zentalk account</h3>
+    <h3>Click this link to reset password  for your selify account</h3>
     <a href="${link}">Reset Password</a>
     <hr/>
     <h4>The link will expire in 1 day.</h4>

@@ -38,7 +38,7 @@ const product = () => {
   const price = searchParams.get("price");
   const image = searchParams.get("image");
   const location = searchParams.get("location");
-
+  console.log("location", location);
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;

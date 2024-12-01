@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   listings: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Listing",
+      ref: "Product",
     },
   ],
   messages: [

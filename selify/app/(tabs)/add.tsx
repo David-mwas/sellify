@@ -232,6 +232,9 @@ function Add() {
             </Text>
 
             {/* Image Picker */}
+            <Text style={{ color: themeColors.text }}>
+              Upload up to 3 images
+            </Text>
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
             >
@@ -271,28 +274,41 @@ function Add() {
               />
             </View>
             {/* Other Inputs */}
-            <TextInput
-              placeholder="Product Name"
-              onChangeText={setTitle}
-              style={{
-                borderWidth: 1,
-                borderColor: themeColors.tint,
-                padding: 8,
-                borderRadius: 8,
-              }}
-            />
-            <TextInput
-              placeholder="Price"
-              keyboardType="numeric"
-              onChangeText={(val) => setPrice(Number(val))}
-              style={{
-                borderWidth: 1,
-                borderColor: themeColors.tint,
-                padding: 8,
-                borderRadius: 8,
-              }}
-            />
+            <View
+              style={{ borderColor: inputBorderColor }}
+              className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
+            >
+              <Entypo name="new-message" size={20} color={iconColor} />
+              <TextInput
+                placeholder="Product Name"
+                placeholderTextColor={iconColor}
+                className="ml-2 flex-1"
+                onChangeText={setTitle}
+                style={{
+                  padding: 8,
+                }}
+              />
+            </View>
+
+            <View
+              style={{ borderColor: inputBorderColor }}
+              className="border rounded-lg  flex flex-row items-center px-4 py-2"
+            >
+              <Entypo name="price-tag" size={20} color={iconColor} />
+              <TextInput
+                placeholder="Price"
+                placeholderTextColor={iconColor}
+                keyboardType="numeric"
+                onChangeText={(val) => setPrice(Number(val))}
+                className="ml-2 flex-1"
+                style={{
+                  padding: 8,
+                }}
+              />
+            </View>
+
             <SelectList
+              placeholder="Select Category"
               setSelected={setSelected}
               data={categories}
               boxStyles={{ borderColor: themeColors.tint }}
@@ -346,11 +362,33 @@ function Add() {
             backgroundColor: themeColors.background,
             padding: 16,
             borderRadius: 8,
+            alignItems: "center",
           }}
         >
-          <Text style={{ color: themeColors.text }}>{modalMessage}</Text>
+          <Text
+            style={{
+              color: themeColors.text,
+              fontWeight: "heavy",
+              fontSize: 18,
+            }}
+          >
+            {modalMessage}
+          </Text>
           <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-            <Text style={{ color: themeColors.tint, marginTop: 16 }}>
+            <Text
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 8,
+                color: "#fff",
+                marginTop: 16,
+                fontSize: 16,
+                fontWeight: "bold",
+                alignItems: "center",
+                alignSelf: "center",
+                backgroundColor: "#c58343cc",
+              }}
+            >
               Close
             </Text>
           </TouchableOpacity>
