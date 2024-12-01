@@ -69,7 +69,7 @@ export default function Login() {
   if (isLoading) {
     return (
       <SafeAreaView
-        style={{ backgroundColor }}
+        style={{ backgroundColor, opacity: 0.6 }}
         className="flex-1 justify-center items-center"
       >
         <ActivityIndicator size="large" color={Colors.light.tint} />

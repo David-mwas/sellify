@@ -1,26 +1,27 @@
-import { apiUrl } from "@/constants/api";
-import { Colors } from "@/constants/Colors";
-import { ThemeContext } from "@/contexts/ThemeContext";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useIsFocused } from "@react-navigation/native";
-import { useNavigation } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Keyboard,
-  Platform,
   SafeAreaView,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Image,
   View,
-  TextInput,
   Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Platform,
+  KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import Modal from "react-native-modal";
-import { KeyboardAvoidingView } from "react-native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
+import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { SelectList } from "react-native-dropdown-select-list";
+import { apiUrl } from "@/constants/api";
+import { Colors } from "@/constants/Colors";
+import { AuthContext } from "@/contexts/AuthContext";
+import { ThemeContext } from "@/contexts/ThemeContext";
 import { useLocation } from "@/hooks/useLocation";
 
 function Add() {
@@ -28,52 +29,56 @@ function Add() {
   const isFocused = useIsFocused();
 
   const [selected, setSelected] = useState("");
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<number | null>(null);
   const [description, setDescription] = useState("");
   const [title, setTitle] = useState("");
-
-  const [categories, setCategories] = useState<
-    { key: string; value: string }[]
-  >([]);
-
+  const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
+  const authContext = useContext(AuthContext);
   const themeContext = useContext(ThemeContext);
-  const isDarkMode = themeContext?.isDarkMode || false;
-  const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const inputBorderColor = isDarkMode ? Colors.dark.tint : Colors.light.tint;
-  const iconColor = isDarkMode ? Colors.dark.icon : Colors.light.icon;
 
-  const { location, errorMsg, isLocationLoading } = useLocation();
-  console.log(location?.coords.latitude, location?.coords.longitude);
-  if (errorMsg) {
-    console.log("Error", errorMsg);
+  if (!authContext || !themeContext) {
+    throw new Error("Contexts must be used within their providers");
   }
 
-  // Fetch categories (optional)
+  type FileData = {
+    uri: string;
+    name: string;
+    type: string;
+  };
+
+  const { userToken } = authContext;
+  const { isDarkMode } = themeContext;
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
+  const iconColor = isDarkMode ? Colors.dark.icon : Colors.light.icon;
+  const inputBorderColor = isDarkMode ? Colors.dark.tint : Colors.light.tint;
+
+  const { location, errorMsg } = useLocation();
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(`${apiUrl}/category`);
         if (response.ok) {
           const data = await response.json();
-          const newArray = data.categories.map((item: any) => ({
+          const formattedCategories = data.categories.map((item: any) => ({
             key: item._id,
             value: `${item.emoji} ${item.name}`,
           }));
-          setCategories(newArray);
+          setCategories(formattedCategories);
         }
       } catch (error) {
-        console.error("Error", error);
+        console.error("Failed to fetch categories:", error);
       }
     };
     fetchCategories();
   }, []);
 
-  // Handle keyboard visibility
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",
@@ -100,7 +105,6 @@ function Add() {
     }
   }, [keyboardVisible, isFocused]);
 
-  // Handle image selection
   const handleImagePick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -117,223 +121,236 @@ function Add() {
     }
   };
 
-  // Remove an image
   const removeImage = (index: number) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
-  // selectedImages.map((item) => console.log(item));
 
   const handlePostProduct = async () => {
+    if (!title || !price || !selected || !description) {
+      setIsUploading(false);
+      setModalMessage("Please fill all the fields!");
+      setIsModalVisible(true);
+      return;
+    }
+
+    if (selectedImages.length === 0) {
+      setIsUploading(false);
+      setModalMessage("Please upload at least one image!");
+      setIsModalVisible(true);
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("name", title);
+    formData.append("title", title);
     formData.append("price", price.toString());
-    formData.append("category", selected);
+    formData.append("categoryId", selected);
     formData.append("description", description);
     formData.append("latitude", location?.coords.latitude?.toString() || "");
     formData.append("longitude", location?.coords.longitude?.toString() || "");
-    selectedImages.map(async (item, index) => {
-      const response = await fetch(item);
-      const blob = await response.blob();
-      formData.append(`image${index + 1}`, blob, `image${index + 1}.jpg`);
-    });
 
-    if (!title || !price || !selected || !description) {
-      setIsModalVisible(true);
-      setModalMessage("Please fill all the fields!");
-      return;
+    for (const [index, uri] of selectedImages.entries()) {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const fileName = `image${index + 1}.jpg`;
+      const fileType = blob.type;
+
+      const file: FileData = {
+        uri,
+        name: fileName,
+        type: fileType,
+      };
+
+      formData.append("files", file as any);
     }
-    if (selectedImages.length === 0) {
-      setIsModalVisible(true);
-      setModalMessage("Please upload at least one image!");
-      return;
-    }
+
     try {
-      // const response = await fetch(`${apiUrl}/product`, {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // if (response.ok) {
-      //   const data = await response.json();
-      //   console.log(data);
-      //   setIsModalVisible(true);
-      //   setModalMessage("Product posted successfully!");
-      // } else {
-      //   setIsModalVisible(true);
-      //   setModalMessage("Failed to post product!");
-      // }
+      setIsUploading(true);
+
+      const response = await fetch(`${apiUrl}/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        setModalMessage("Product posted successfully!🚀");
+      } else {
+        const result = await response.json();
+        setModalMessage(result.message || "Failed to post product!");
+      }
     } catch (error) {
-      console.error("Error", error);
+      setModalMessage(`Failed to post product! ${error}`);
+      console.error("Failed to post product:", error);
+    } finally {
+      setIsUploading(false);
+      // reset form
+      setSelectedImages([]);
+      setTitle("");
+      setPrice(null);
+      setDescription("");
+      setSelected("");
+      setIsUploading(false);
     }
+    setIsModalVisible(true);
   };
+
+  if (isUploading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          opacity: 0.6,
+        }}
+      >
+        <ActivityIndicator size="large" color={themeColors.tint} />
+        <Text style={{ color: themeColors.text }}>Posting Product...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView
-      className="flex-1"
-      style={{ backgroundColor: themeColors.background }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="px-4 py-4 gap-4">
+          <View style={{ padding: 16, gap: 16 }}>
             <Text
-              className="text-xl font-extrabold uppercase mb-4"
-              style={{ color: themeColors.tint }}
+              style={{
+                color: themeColors.tint,
+                fontWeight: "bold",
+                fontSize: 18,
+              }}
             >
-              Post A Product
-            </Text>
-            <Text
-              className="text-md font-semibold"
-              style={{ color: themeColors.text }}
-            >
-              Upload up to 3 images
+              Post a Product
             </Text>
 
-            {/* Image Selection Section */}
-            <View className="flex flex-row gap-4 items-center">
-              {/* Conditional Rendering of the "Upload Image" Button */}
+            {/* Image Picker */}
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
               {selectedImages.length < 3 && (
                 <TouchableOpacity
                   onPress={handleImagePick}
-                  className="w-[120px] h-[100px] rounded-md bg-gray-400 justify-center items-center"
+                  style={{
+                    width: 100,
+                    height: 100,
+                    backgroundColor: "#ccc",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 8,
+                  }}
                 >
-                  <Ionicons name="camera" size={24} color="#eee" />
+                  <Ionicons name="camera" size={24} color="#fff" />
                 </TouchableOpacity>
               )}
-
               <FlashList
-                scrollEnabled={true}
-                horizontal
                 data={selectedImages}
+                horizontal
                 renderItem={({ item, index }) => (
-                  <View className="relative overflow-x-scroll mx-2">
+                  <View style={{ position: "relative", marginHorizontal: 8 }}>
                     <Image
                       source={{ uri: item }}
-                      className="w-[100px] h-[100px] rounded-lg"
+                      style={{ width: 100, height: 100 }}
                     />
-                    {/* Remove Icon */}
                     <TouchableOpacity
                       onPress={() => removeImage(index)}
-                      className="absolute top-0 right-0 p-2 bg-opacity-50 rounded-full"
+                      style={{ position: "absolute", top: 4, right: 4 }}
                     >
-                      <Ionicons
-                        name="close-circle"
-                        size={28}
-                        color="#fff"
-                        style={{ color: themeColors.text }}
-                      />
+                      <Ionicons name="close-circle" size={24} color="#ff0000" />
                     </TouchableOpacity>
                   </View>
                 )}
-                keyExtractor={(item, index) => `${item}-${index}`}
                 estimatedItemSize={100}
               />
             </View>
-
-            {/* Other Input Fields */}
+            {/* Other Inputs */}
+            <TextInput
+              placeholder="Product Name"
+              onChangeText={setTitle}
+              style={{
+                borderWidth: 1,
+                borderColor: themeColors.tint,
+                padding: 8,
+                borderRadius: 8,
+              }}
+            />
+            <TextInput
+              placeholder="Price"
+              keyboardType="numeric"
+              onChangeText={(val) => setPrice(Number(val))}
+              style={{
+                borderWidth: 1,
+                borderColor: themeColors.tint,
+                padding: 8,
+                borderRadius: 8,
+              }}
+            />
+            <SelectList
+              setSelected={setSelected}
+              data={categories}
+              boxStyles={{ borderColor: themeColors.tint }}
+            />
             <View
               style={{ borderColor: inputBorderColor }}
               className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
             >
-              <MaterialIcons
-                name="drive-file-rename-outline"
-                size={20}
-                color={iconColor}
-              />
-              <TextInput
-                className="ml-2 flex-1"
-                placeholder="Product Name..."
-                placeholderTextColor={iconColor}
-                style={{ color: themeColors.text }}
-              />
-            </View>
-
-            {/* Price Input */}
-            <View
-              style={{ borderColor: inputBorderColor }}
-              className="border rounded-lg flex flex-row items-center px-4 py-2 w-52"
-            >
-              <Entypo name="price-tag" size={20} color={iconColor} />
-              <TextInput
-                className="ml-2 flex-1"
-                placeholder="Price..."
-                keyboardType="numeric"
-                placeholderTextColor={iconColor}
-                style={{ color: themeColors.text }}
-              />
-            </View>
-
-            {/* Category Dropdown */}
-            <SelectList
-              dropdownStyles={{ borderColor: themeColors.tint }}
-              dropdownTextStyles={{
-                color: themeColors.text,
-                fontWeight: "semibold",
-                textTransform: "capitalize",
-              }}
-              boxStyles={{ borderColor: themeColors.tint }}
-              setSelected={(val: string) => setSelected(val)}
-              data={categories}
-              save="value"
-            />
-
-            {/* Description Input */}
-            <View
-              style={{ borderColor: inputBorderColor }}
-              className="border rounded-lg flex flex-row items-center px-4 py-2"
-            >
               <MaterialIcons name="description" size={20} color={iconColor} />
               <TextInput
-                className="ml-2 flex-1"
                 placeholder="Description..."
+                className="ml-2 flex-1"
+                multiline={true}
+                numberOfLines={4}
+                onChangeText={setDescription}
                 placeholderTextColor={iconColor}
-                style={{ color: themeColors.text }}
               />
             </View>
-
-            {/* Post Product Button */}
             <TouchableOpacity
-              className="w-full p-4 rounded-[30px] mt-6"
-              style={{ backgroundColor: themeColors.tint }}
+              disabled={isUploading}
+              onPress={handlePostProduct}
+              style={{
+                backgroundColor: themeColors.tint,
+                padding: 12,
+                borderRadius: 20,
+                marginTop: 20,
+                alignItems: "center",
+              }}
             >
-              <Text className="text-white text-center font-semibold uppercase">
-                Post Product
+              <Text
+                style={{
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  fontWeight: "800",
+                }}
+              >
+                {isUploading ? "Posting product..." : "Post Product"}
               </Text>
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      {/* Custom Modal */}
-      <Modal isVisible={isModalVisible}>
+
+      {/* Modal */}
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={() => setIsModalVisible(false)}
+      >
         <View
           style={{
-            backgroundColor: "white",
-            padding: 20,
-            borderRadius: 10,
-            alignItems: "center",
+            backgroundColor: themeColors.background,
+            padding: 16,
+            borderRadius: 8,
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold", color: "red" }}>
-            Error
-          </Text>
-          <Text style={{ fontSize: 16, marginTop: 10, textAlign: "center" }}>
-            {modalMessage}
-          </Text>
-          <TouchableOpacity
-            onPress={() => setIsModalVisible(false)}
-            style={{
-              backgroundColor: "#c58343cc",
-              padding: 10,
-              marginTop: 20,
-              borderRadius: 5,
-            }}
-          >
-            <Text
-              style={{
-                color: "white",
-                fontWeight: "bold",
-                paddingHorizontal: 20,
-              }}
-            >
+          <Text style={{ color: themeColors.text }}>{modalMessage}</Text>
+          <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+            <Text style={{ color: themeColors.tint, marginTop: 16 }}>
               Close
             </Text>
           </TouchableOpacity>
