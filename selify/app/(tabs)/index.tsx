@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  Text,
-  View,
-  Image,
-  SafeAreaView,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
+import { Text, View, Image, SafeAreaView } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Link, router } from "expo-router";
@@ -25,73 +18,12 @@ function Index() {
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setProducts([
-        {
-          id: 1,
-          title: "Product 1",
-          images: [
-            {
-              url: "https://picsum.photos/200/300",
-              thumbnailUrl: "https://example.com/image1-thumbnail.jpg",
-            },
-          ],
-          price: 100,
-          categoryId: 1,
-          userId: 1,
-          location: {
-            latitude: 0.2861635,
-            longitude: 34.7630199,
-          },
-        },
-        {
-          id: 2,
-          title: "Product 2",
-          images: [
-            {
-              url: "https://picsum.photos/200/300",
-              thumbnailUrl: "https://example.com/image2-thumbnail.jpg",
-            },
-          ],
-          price: 200,
-          categoryId: 2,
-          userId: 2,
-          location: {
-            latitude: 0.2861635,
-            longitude: 34.7630199,
-          },
-        },
-        {
-          id: 3,
-          title: "Product 3",
-          images: [
-            {
-              url: "https://picsum.photos/200/300",
-              thumbnailUrl: "https://example.com/image3-thumbnail.jpg",
-            },
-          ],
-          price: 300,
-          categoryId: 3,
-          userId: 3,
-          location: {
-            latitude: 0.2861635,
-            longitude: 34.7630199,
-          },
-        },
-      ]);
-      setIsLoading(false);
-      setIsRefreshing(false); // Reset the refreshing state
-    }, 1000); // Simulate a 2-second loading time
-  };
-
   const handleFetchProducts = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(`${apiUrl}/products`);
       const data = await response.json();
-      console.log(data.products.location);
+      // console.log(data.products.location);
       setProducts(data.products);
 
       setIsLoading(false);
@@ -100,13 +32,16 @@ function Index() {
       setIsLoading(false);
       setIsRefreshing(false);
       console.error(error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
   useEffect(() => {
     handleFetchProducts();
     // fetchProducts();
   }, []);
-
+  // console.log(products.map((item) => item.userId.username));
   return (
     <SafeAreaView className="flex-1 px-6 py-4">
       <Image
@@ -121,7 +56,7 @@ function Index() {
       {isLoading ? (
         // Shimmer Placeholder
         <View style={{ flex: 1 }}>
-          {[...Array(5)].map((_, index) => (
+          {[...Array(10)].map((_, index) => (
             <View
               key={index}
               style={{
@@ -139,13 +74,16 @@ function Index() {
                   borderRadius: 10,
                   marginBottom: 10,
                 }}
+                shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
               />
               <View style={{ padding: 10 }}>
                 <ShimmerPlaceholder
                   style={{ height: 20, marginBottom: 8, borderRadius: 5 }}
+                  shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
                 />
                 <ShimmerPlaceholder
                   style={{ height: 16, width: "60%", borderRadius: 5 }}
+                  shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
                 />
               </View>
             </View>
@@ -166,6 +104,7 @@ function Index() {
               categoryId: string;
               userId: string;
               location: { latitude: number; longitude: number };
+              user: string;
             };
           }) => (
             <View className="my-3 relative">
@@ -178,6 +117,7 @@ function Index() {
                     price: item.price,
                     image: item.images[0].url,
                     location: JSON.stringify(item.location),
+                    user: JSON.stringify(item.userId),
                   },
                 }}
                 className="mb-6 my-3 "

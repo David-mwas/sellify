@@ -30,6 +30,7 @@ import {
 import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
+import { apiUrl } from "@/constants/api";
 
 const product = () => {
   const searchParams = useSearchParams();
@@ -38,7 +39,8 @@ const product = () => {
   const price = searchParams.get("price");
   const image = searchParams.get("image");
   const location = searchParams.get("location");
-  console.log("location", location);
+  const user = searchParams.get("user");
+  console.log("user", user);
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
@@ -49,11 +51,26 @@ const product = () => {
     display_name: string;
     name?: string;
   }
+  interface UserData {
+    location: Location;
+    _id: string;
+    username: string;
+    email: string;
+    imageUrl: string;
+    phoneNumber: string;
+    listings: any[];
+    messages: any[];
+    expoPushToken: string;
+    createdAt: Date;
+  }
 
   const [locationData, setLocationData] = useState<LocationData | null>(null);
+  const userData: UserData = user ? JSON.parse(user) : null;
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
   const loc = location ? JSON.parse(location) : null;
-  console.log(loc.latitude, loc.longitude);
+
+  const [listings, setListings] = useState();
+  // console.log(loc.latitude, loc.longitude);
   useEffect(() => {
     const fetchLocation = async () => {
       const headersList = {
@@ -75,6 +92,23 @@ const product = () => {
     };
     fetchLocation();
   }, []);
+
+  console.log("id", userData._id);
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/products/user/${userData._id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setListings(data?.products);
+          // console.log("userdata ", data);
+        }
+      } catch (error) {
+        console.error("Error", error);
+      }
+    };
+    fetchUserListings();
+  }, [userData?._id]);
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -155,16 +189,31 @@ const product = () => {
             </Text>
 
             <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-2">
-              <Image
-                source={{ uri: image || "" }}
-                className="w-[3rem] h-[3rem] object-contain rounded-full"
-              />
+              {!userData.imageUrl ? (
+                <Image
+                  source={{ uri: userData.imageUrl || "" }}
+                  className="w-[3rem] h-[3rem] object-contain rounded-full"
+                />
+              ) : (
+                <Text
+                  className="p-4 rounded-full items-center flex justify-center text-center text-white font-extrabold"
+                  style={{
+                    color: "#eee",
+                    backgroundColor: "#999",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  {userData.username.slice(0, 2)}
+                </Text>
+              )}
               <View className="flex-1">
                 <Text className={`font-bold text-[${themeColors.tint}]`}>
-                  Name
+                  {userData.username}
                 </Text>
                 <Text className={`font-semibold text-[${themeColors.tint}]`}>
-                  5 Listings
+                  {userData.listings.length || listings?.length} Listings
                 </Text>
               </View>
               <View className="self-center">

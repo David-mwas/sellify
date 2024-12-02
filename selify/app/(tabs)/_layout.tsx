@@ -12,11 +12,13 @@ import { OnboardingContext } from "@/contexts/OnBoardingContext"; // For onboard
 import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom color palette
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Image } from "react-native";
 import OnBoarding from "../(auth)/Onboarding";
 import Login from "../(auth)/Login";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
-
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import NewListingButton from "../components/NewListingButton";
 export default function TabLayout() {
   const authContext = useContext(AuthContext);
   const onboardingContext = useContext(OnboardingContext);
@@ -84,8 +86,6 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: activeTintColor,
           tabBarHideOnKeyboard: true,
-
-          animation: "shift",
           tabBarInactiveTintColor: inactiveTintColor,
 
           tabBarStyle: { backgroundColor },
@@ -107,6 +107,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
+            animation: "shift",
             tabBarIcon: ({ color }) => (
               <FontAwesome size={28} name="home" color={color} />
             ),
@@ -115,35 +116,22 @@ export default function TabLayout() {
         />
         <Tabs.Screen
           name="products"
-          options={{ href: null, headerShown: false, animation: "shift" }}
+          options={{ href: null, headerShown: false }}
         />
         <Tabs.Screen
           name="add"
-          options={{
-            title: "Post",
-            headerShown: false,
-            tabBarStyle: { position: "relative" }, // Ensure the tab bar allows customization
-            tabBarIcon: ({ color }) => (
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 60,
-                  width: 60,
-                  borderRadius: 30,
-                  backgroundColor: activeTintColor,
-                  marginBottom: 30,
-                  elevation: 30, // Add elevation for Android
-                  shadowColor: "#000", // Add shadow for iOS
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                }}
-              >
-                <AntDesign name="pluscircle" size={30} color="#fff" />
-              </View>
+          options={({ navigation }) => ({
+            tabBarButton: () => (
+              <NewListingButton onPress={() => navigation.navigate("add")} />
             ),
-          }}
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="plus-circle"
+                color={color}
+                size={size}
+              />
+            ),
+          })}
         />
 
         {/* <Tabs.Screen
@@ -160,7 +148,6 @@ export default function TabLayout() {
           name="account"
           options={{
             title: "account",
-
             tabBarIcon: ({ color }) => (
               <Ionicons name="person" size={28} color={color} />
             ),

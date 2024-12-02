@@ -39,9 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const token = await SecureStore.getItemAsync("Token");
 
         if (token) {
+          setIsLoading(false);
           setUserToken(token);
         }
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.error("Error loading token:", error);
       } finally {
         setIsLoading(false);
@@ -78,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.status === 200) {
         const data = await response.json();
         console.log(data?.access_token);
-        // const token = data.key; // Assuming your API returns the token in this format
+        // const token = data.key; // Assuming  API returns the token in this format
 
         await SecureStore.setItemAsync("Token", data?.access_token);
         setUserToken(data?.access_token);
