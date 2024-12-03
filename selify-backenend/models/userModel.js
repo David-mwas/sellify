@@ -21,9 +21,12 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },
   imageUrl: {
-    type: String,
-    default:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk2tpzZPcDHDTNJaFGaGDpFoWy6VrKT7hgrg&s",
+    url: {
+      type: String,
+    },
+    publicId: {
+      type: String,
+    },
   },
   phoneNumber: {
     type: String,

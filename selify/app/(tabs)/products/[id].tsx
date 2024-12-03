@@ -93,7 +93,7 @@ const product = () => {
     fetchLocation();
   }, []);
 
-  console.log("id", userData._id);
+  // console.log("id", userData._id);
   useEffect(() => {
     const fetchUserListings = async () => {
       try {

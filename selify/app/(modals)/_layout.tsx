@@ -21,7 +21,7 @@ export default function Modals() {
       <Stack.Screen
         name="[id]"
         options={{
-          title: "Product details",
+          title: "user details",
         }}
       />
     </Stack>

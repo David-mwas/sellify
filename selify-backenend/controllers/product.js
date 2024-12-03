@@ -248,7 +248,7 @@ exports.createProduct = async (req, res, next) => {
       },
     });
 
-    await product.save();
+    product.save();
 
     return res.status(201).json({
       message: "Product created successfully",
