@@ -31,6 +31,7 @@ import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
+import Swiper from "react-native-swiper";
 
 const product = () => {
   const searchParams = useSearchParams();
@@ -162,6 +163,36 @@ const product = () => {
     );
   };
 
+  const renderImageSwiper = () => {
+    const images = [image, image, image /* Add more image URLs if available */];
+
+    if (!images || images.length === 0) {
+      return (
+        <View style={styles.imagePlaceholder}>
+          <Text style={{ color: themeColors.text }}>No images available</Text>
+        </View>
+      );
+    }
+
+    return (
+      <Swiper
+        style={styles.swiper}
+        showsButtons
+        autoplay
+        autoplayTimeout={3}
+        loop
+        dotColor={themeColors.text}
+        activeDotColor={themeColors.tint}
+      >
+        {images.map((img, index) => (
+          <View key={index} style={styles.slide}>
+            <Image source={{ uri: img || "" }} style={styles.images} />
+          </View>
+        ))}
+      </Swiper>
+    );
+  };
+
   return (
     <GestureHandlerRootView
       style={[{ flex: 1 }, { backgroundColor: themeColors.background }]}
@@ -169,9 +200,7 @@ const product = () => {
       <BottomSheetModalProvider>
         <ParallaxScrollView
           headerBackgroundColor={{ dark: "red", light: "red" }}
-          headerImage={
-            <Image source={{ uri: image || "" }} style={styles.image} />
-          }
+          headerImage={renderImageSwiper()}
         >
           <View
             style={[
@@ -341,5 +370,26 @@ const styles = StyleSheet.create({
     // shadowOpacity: 0.2,
     // shadowRadius: 4,
     // elevation: 1,
+  },
+
+  swiper: {
+    height: 300, // Adjust to your preferred height
+  },
+  slide: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  images: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  imagePlaceholder: {
+    width: "100%",
+    height: 300,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "red", // Placeholder background
   },
 });
