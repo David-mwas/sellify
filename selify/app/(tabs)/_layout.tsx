@@ -14,10 +14,7 @@ import { Colors } from "@/constants/Colors"; // Custom color palette
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OnBoarding from "../(auth)/Onboarding";
 import Login from "../(auth)/Login";
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import NewListingButton from "../components/NewListingButton";
 export default function TabLayout() {
   const authContext = useContext(AuthContext);
@@ -57,7 +54,7 @@ export default function TabLayout() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor,
+          backgroundColor: backgroundColor,
         }}
       >
         <ActivityIndicator size="large" color={activeTintColor} />
@@ -87,17 +84,16 @@ export default function TabLayout() {
           tabBarActiveTintColor: activeTintColor,
           tabBarHideOnKeyboard: true,
           tabBarInactiveTintColor: inactiveTintColor,
-
-          tabBarStyle: { backgroundColor },
+          tabBarInactiveBackgroundColor: backgroundColor,
+          tabBarActiveBackgroundColor: backgroundColor,
           headerStyle: { backgroundColor: headerBackgroundColor },
           headerTintColor: headerTextColor,
           headerShown: false,
-
           tabBarLabelStyle: {
             fontSize: 12,
-            elevation: 0.1,
+            elevation: 5,
             shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
+            shadowOffset: { width: 0, height: 5 },
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
           },
@@ -121,14 +117,16 @@ export default function TabLayout() {
         <Tabs.Screen
           name="add"
           options={({ navigation }) => ({
-            tabBarButton: () => (
-              <NewListingButton onPress={() => navigation.navigate("add")} />
-            ),
+            title: "Post product",
+            // tabBarButton: () => (
+            //   <NewListingButton onPress={() => navigation.navigate("add")} />
+            // ),
+
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
                 name="plus-circle"
                 color={color}
-                size={size}
+                size={30}
               />
             ),
           })}
@@ -157,16 +155,16 @@ export default function TabLayout() {
     </>
   );
 }
-const styles = StyleSheet.create({
-  userImage: {
-    width: 50,
-    height: 50,
-    left: 5,
-    borderRadius: 50,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 0.6,
-  },
-});
+// const styles = StyleSheet.create({
+//   userImage: {
+//     width: 50,
+//     height: 50,
+//     left: 5,
+//     borderRadius: 50,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 0.6,
+//   },
+// });

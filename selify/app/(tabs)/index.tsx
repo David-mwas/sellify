@@ -43,7 +43,10 @@ function Index() {
   }, []);
   // console.log(products.map((item) => item.userId.username));
   return (
-    <SafeAreaView className="flex-1 px-6 py-4">
+    <SafeAreaView
+      className="flex-1 px-6 py-4"
+      style={{ backgroundColor: themeColors.background }}
+    >
       <Image
         source={require("@/assets/images/selify.png")}
         style={{
@@ -61,7 +64,7 @@ function Index() {
               key={index}
               style={{
                 marginBottom: 20,
-                backgroundColor: "#fff",
+                backgroundColor: "#e0e0e0",
                 borderRadius: 10,
                 overflow: "hidden",
                 elevation: 3,
@@ -146,7 +149,7 @@ function Index() {
                     justifyContent: "center",
                     overflow: "hidden",
                   }}
-                  intensity={180}
+                  intensity={10}
                   className="pr-4 absolute bottom-0 left-0 rounded-0  rounded-tl-0 rounded-tr-[30px] "
                 >
                   <Text className="text-lg font-bold text-[#333]">

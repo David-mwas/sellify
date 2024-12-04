@@ -9,7 +9,7 @@ export default function Layout() {
     <AuthProvider>
       <OnboardingProvider>
         <ThemeProvider>
-          <Stack screenOptions={{ headerShown: false, animation: "flip" }}>
+          <Stack screenOptions={{ headerShown: false,animation:"simple_push" }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(modals)" options={{ headerShown: false }} />

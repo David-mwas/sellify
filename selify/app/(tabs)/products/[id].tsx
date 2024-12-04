@@ -40,7 +40,7 @@ const product = () => {
   const image = searchParams.get("image");
   const location = searchParams.get("location");
   const user = searchParams.get("user");
-  console.log("user", user);
+  // console.log("user", user);
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
@@ -126,7 +126,12 @@ const product = () => {
   }, []);
 
   const renderLocationDetails = () => {
-    if (!locationData) return <Text>Loading location...</Text>;
+    if (!locationData)
+      return (
+        <Text style={{ color: themeColors.text, fontWeight: "600" }}>
+          Loading location...
+        </Text>
+      );
 
     const { display_name } = locationData;
 
@@ -141,8 +146,13 @@ const product = () => {
             Address
           </Text>
         </View>
-        <Text style={styles.locationItem}>{display_name || "N/A"}</Text>
-        <Pressable onPress={handlePresentModalPress} style={styles.mapButton}>
+        <Text style={[styles.locationItem, { color: themeColors.text }]}>
+          {display_name || "N/A"}
+        </Text>
+        <Pressable
+          onPress={handlePresentModalPress}
+          style={[styles.mapButton, { backgroundColor: themeColors.icon }]}
+        >
           <View className="flex flex-row justify-center items-center text-center gap-2">
             <FontAwesome5 name="map-marked-alt" size={24} color="white" />
             <Text style={styles.mapButton}>View On Map</Text>
@@ -153,15 +163,22 @@ const product = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView
+      style={[{ flex: 1 }, { backgroundColor: themeColors.background }]}
+    >
       <BottomSheetModalProvider>
         <ParallaxScrollView
-          headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+          headerBackgroundColor={{ dark: "red", light: "red" }}
           headerImage={
             <Image source={{ uri: image || "" }} style={styles.image} />
           }
         >
-          <View style={styles.container}>
+          <View
+            style={[
+              styles.container,
+              { backgroundColor: themeColors.background },
+            ]}
+          >
             <Stack.Screen
               options={{
                 title: id ? id.toString() : "Default Title",
@@ -181,7 +198,7 @@ const product = () => {
             </Text>
             <Text
               style={{
-                fontSize: 16,
+                fontSize: 18,
                 color: themeColors.tint,
                 marginBottom: 5,
               }}
@@ -191,8 +208,10 @@ const product = () => {
               </Text>
               KES {price}
             </Text>
-
-            <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-2">
+            <Text style={{ color: themeColors.icon, marginLeft: 2 }}>
+              Posted by
+            </Text>
+            <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-4">
               {userData.imageUrl.url ? (
                 <Image
                   source={{ uri: userData.imageUrl.url || "" }}
@@ -212,11 +231,12 @@ const product = () => {
                   {userData.username.slice(0, 2)}
                 </Text>
               )}
+
               <View className="flex-1">
-                <Text className={`font-bold text-[${themeColors.tint}]`}>
+                <Text style={{ fontWeight: "800", color: themeColors.text }}>
                   {userData.username}
                 </Text>
-                <Text className={`font-semibold text-[${themeColors.tint}]`}>
+                <Text style={{ fontWeight: "500", color: themeColors.text }}>
                   {userData.listings.length || listings?.length} Listings
                 </Text>
               </View>
@@ -291,7 +311,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
     marginTop: 15,
-    backgroundColor: "#fff",
     borderRadius: 8,
     shadowColor: "#c58343cc",
     shadowOffset: { width: 0, height: 1 },
@@ -304,7 +323,6 @@ const styles = StyleSheet.create({
   mapButton: {
     paddingVertical: 6,
     textAlign: "center",
-    backgroundColor: "#aaa",
     color: "#fff",
     borderRadius: 15,
     alignItems: "center",
@@ -312,6 +330,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     display: "flex",
     fontWeight: "semibold",
+    marginTop: 10,
   },
   mapButtonText: { color: "#fff", fontSize: 16 },
   mapContainer: { flex: 1 },

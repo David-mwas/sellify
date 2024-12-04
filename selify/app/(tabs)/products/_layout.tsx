@@ -13,13 +13,14 @@ export default function Modals() {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "simple_push",
         headerStyle: {
           backgroundColor: themeColors.headerBackground,
         },
         headerTintColor: themeColors.headerText,
       }}
     >
-      <Stack.Screen name="[id]" />
+      <Stack.Screen name="[id]" options={{ animation: "simple_push" }} />
     </Stack>
   );
 }

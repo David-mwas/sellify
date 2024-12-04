@@ -55,7 +55,7 @@ function Add() {
   const { userToken } = authContext;
   const { isDarkMode } = themeContext;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const iconColor = isDarkMode ? Colors.dark.icon : Colors.light.icon;
+  // const iconcolors = isDarkMode ? Colors.dark.icon : Colors.light.icon;
   const inputBorderColor = isDarkMode ? Colors.dark.tint : Colors.light.tint;
 
   const { location, errorMsg } = useLocation();
@@ -201,12 +201,15 @@ function Add() {
   if (isUploading) {
     return (
       <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          opacity: 0.6,
-        }}
+        style={[
+          {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            opacity: 0.6,
+          },
+          { backgroundColor: themeColors.background },
+        ]}
       >
         <ActivityIndicator size="large" color={themeColors.tint} />
         <Text style={{ color: themeColors.text }}>Posting Product...</Text>
@@ -215,8 +218,9 @@ function Add() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background}}>
       <KeyboardAvoidingView
+        style={{ flex: 1}}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -278,10 +282,10 @@ function Add() {
               style={{ borderColor: inputBorderColor }}
               className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
             >
-              <Entypo name="new-message" size={20} color={iconColor} />
+              <Entypo name="new-message" size={20} color={themeColors.text} />
               <TextInput
                 placeholder="Product Name"
-                placeholderTextColor={iconColor}
+                placeholderTextColor={themeColors.text}
                 className="ml-2 flex-1"
                 onChangeText={setTitle}
                 style={{
@@ -294,10 +298,10 @@ function Add() {
               style={{ borderColor: inputBorderColor }}
               className="border rounded-lg  flex flex-row items-center px-4 py-2"
             >
-              <Entypo name="price-tag" size={20} color={iconColor} />
+              <Entypo name="price-tag" size={20} color={themeColors.text} />
               <TextInput
                 placeholder="Price"
-                placeholderTextColor={iconColor}
+                placeholderTextColor={themeColors.text}
                 keyboardType="numeric"
                 onChangeText={(val) => setPrice(Number(val))}
                 className="ml-2 flex-1"
@@ -309,6 +313,9 @@ function Add() {
 
             <SelectList
               placeholder="Select Category"
+              inputStyles={{
+                color: themeColors.text,
+              }}
               setSelected={setSelected}
               data={categories}
               boxStyles={{ borderColor: themeColors.tint }}
@@ -317,14 +324,18 @@ function Add() {
               style={{ borderColor: inputBorderColor }}
               className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
             >
-              <MaterialIcons name="description" size={20} color={iconColor} />
+              <MaterialIcons
+                name="description"
+                size={20}
+                color={themeColors.text}
+              />
               <TextInput
                 placeholder="Description..."
                 className="ml-2 flex-1"
                 multiline={true}
                 numberOfLines={4}
                 onChangeText={setDescription}
-                placeholderTextColor={iconColor}
+                placeholderTextColor={themeColors.text}
               />
             </View>
             <TouchableOpacity
