@@ -16,45 +16,41 @@ exports.userProfile = async (req, res, next) => {
 };
 
 exports.editProfile = async (req, res, next) => {
-  const image = {
-    url: "",
-    publicId: "",
-  };
-  const data = req.body;
-  console.log(data);
-  console.log(req.files);
+  console.log("Edit profile");
+  try {
+    const image = { url: "", publicId: "" };
+    const data = req.body;
+    console.log("Edit profile", req.files);
+    if (req.files) {
+      // Single file upload
+      const imageBuffer = req.files[0].buffer.toString("base64");
+      const result = await cloudinary.uploader.upload(
+        `data:${req.files[0].mimetype};base64,${imageBuffer}`,
+        { folder: "selifyuser" }
+      );
 
-  if (req.files) {
-    const file = req.files[0];
-    const imageBuffer = file.buffer.toString("base64");
-    // Upload the image to Cloudinary as Base64 string
-    const result = await cloudinary.uploader.upload(
-      `data:${file?.mimetype};base64,${imageBuffer}`,
-      {
-        folder: "selifyuser",
-      }
-    );
+      image.url = result.secure_url;
+      image.publicId = result.public_id;
+    }
 
-    image.url = result.secure_url;
-    image.publicId = result.public_id;
-  }
-
-  const user = await userModel.findByIdAndUpdate(
-    req.payload.aud,
-    {
-      $set: {
+    const user = await userModel.findById(req.payload.aud);
+    if (user) {
+      user.set({
         ...data,
-        imageUrl: image,
-      },
-    },
-    { new: true }
-  );
+        imageUrl: image.url ? image : user.imageUrl, // Preserve existing image
+      });
+      await user.save();
+    }
 
-  await user.save();
-  return res.status(200).json({
-    username: user.username,
-    email: user.email,
-  });
+    return res.status(200).json({
+      username: user.username,
+      email: user.email,
+      imageUrl: user.imageUrl,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({ message: "Server error", error });
+  }
 };
 
 // Save user's Expo push token

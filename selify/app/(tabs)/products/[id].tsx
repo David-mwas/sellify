@@ -56,20 +56,24 @@ const product = () => {
     _id: string;
     username: string;
     email: string;
-    imageUrl: string;
+    imageUrl: {
+      url: string;
+    };
     phoneNumber: string;
-    listings: any[];
+    listings: any[] | [];
     messages: any[];
     expoPushToken: string;
     createdAt: Date;
   }
 
   const [locationData, setLocationData] = useState<LocationData | null>(null);
-  const userData: UserData = user ? JSON.parse(user) : null;
+  const userData: UserData = user
+    ? JSON.parse(user)
+    : ({ listings: [] } as UserData);
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
   const loc = location ? JSON.parse(location) : null;
 
-  const [listings, setListings] = useState();
+  const [listings, setListings] = useState<any[] | null>(null);
   // console.log(loc.latitude, loc.longitude);
   useEffect(() => {
     const fetchLocation = async () => {
@@ -189,9 +193,9 @@ const product = () => {
             </Text>
 
             <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-2">
-              {!userData.imageUrl ? (
+              {userData.imageUrl.url ? (
                 <Image
-                  source={{ uri: userData.imageUrl || "" }}
+                  source={{ uri: userData.imageUrl.url || "" }}
                   className="w-[3rem] h-[3rem] object-contain rounded-full"
                 />
               ) : (

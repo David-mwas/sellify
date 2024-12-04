@@ -82,21 +82,18 @@ function Account() {
     // Toggle between languages (example)
     setLanguage((prev) => (prev === "English" ? "Spanish" : "English"));
   };
-
+  console.log("userProfile", userProfile?.imageUrl.url);
   return (
     <View
-      style={[
-        styles.container,
-        { backgroundColor: themeColors.background },
-      ]}
+      style={[styles.container, { backgroundColor: themeColors.background }]}
     >
       {/* User Profile */}
       <Link
         className="flex items-center mb-6  object-contain rounded-full"
         href={{
-          pathname: "/(modals)/[id]",
+          pathname: "/(modals)/user",
           params: {
-            id: userProfile?._id!,
+            // id: userProfile?._id!,
             userdata: JSON.stringify(userProfile),
 
             // title: item.title,
@@ -109,7 +106,7 @@ function Account() {
         style={styles.profileContainer}
       >
         <View>
-          {userProfile?.imageUrl?.url ? (
+          {userProfile?.imageUrl ? (
             <Image
               source={{ uri: userProfile?.imageUrl?.url }}
               className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"

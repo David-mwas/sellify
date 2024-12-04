@@ -183,7 +183,7 @@ exports.createProduct = async (req, res, next) => {
     const userId = req.payload.aud;
     const { title, price, categoryId, description, latitude, longitude } =
       req.body;
-    // console.log("body ", latitude, longitude);
+    console.log("body ", latitude, longitude);
     // console.log("files", req.files);
     // Validate user
     const user = await userModel.findById(userId);
@@ -248,7 +248,7 @@ exports.createProduct = async (req, res, next) => {
       },
     });
 
-    product.save();
+    await product.save();
 
     return res.status(201).json({
       message: "Product created successfully",
@@ -256,7 +256,7 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    next(error);
     return res.status(500).json({ message: "Server error", error });
+    next(error);
   }
 };

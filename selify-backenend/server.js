@@ -35,6 +35,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
 app.use(cors());
 
+app.options("*", cors());
+app.use(
+  cors({
+    origin: "*", // Allow all origins
+  })
+);
+
 // Routes
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Welcome to Selify API" });

@@ -19,7 +19,7 @@ export default function Modals() {
       }}
     >
       <Stack.Screen
-        name="[id]"
+        name="user"
         options={{
           title: "user details",
         }}

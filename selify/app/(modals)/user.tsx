@@ -1,3 +1,5 @@
+// "use client";
+
 import React, { useContext, useState } from "react";
 import {
   View,
@@ -12,10 +14,12 @@ import {
 import { Stack, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
 import { AuthContext } from "@/contexts/AuthContext";
+
 interface UserProfile {
   username: string;
   email: string;
@@ -27,7 +31,7 @@ const ProfilePage = () => {
   const { userdata } = useLocalSearchParams();
   const user: UserProfile = JSON.parse(userdata as string);
   const authContext = useContext(AuthContext);
-  const userToken = authContext?.userToken || "";
+  const userToken = authContext?.userToken;
   const [username, setUsername] = useState(user.username);
   const [email, setEmail] = useState(user.email);
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
@@ -51,41 +55,43 @@ const ProfilePage = () => {
     }
   };
 
-  const formData = new FormData();
-  formData.append("username", username);
-  formData.append("email", email);
-  formData.append("phoneNumber", phoneNumber);
-
-  if (imageUrl) {
-    const file = {
-      uri: imageUrl,
-      type: "image/jpeg",
-      name: "profile.jpg",
-    };
-    formData.append("files", file as any);
-  }
   const handleSave = async () => {
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("phoneNumber", phoneNumber);
+
+    if (imageUrl.url) {
+      const imageBlob = {
+        uri: imageUrl.url,
+        type: "image/jpeg",
+        name: "profile.jpg",
+      } as any;
+      formData.append("files", imageBlob);
+    }
+
     try {
       setIsLoading(true);
-      const response = await fetch(`${apiUrl}/user/edit-profile`, {
-        method: "PUT",
+      const response = await axios.put(`${apiUrl}/user/editprofile`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${userToken}`,
+          "Content-Type": "multipart/form-data",
         },
-        body: formData,
       });
 
-      if (response.ok) {
-        setIsLoading(false);
-        Alert.alert("Profile updated successfully");
-      } else {
-        setIsLoading(false);
-        Alert.alert("Failed to update profile");
-      }
+      console.log("response", response.data);
+      setImageUrl({ url: response.data.imageUrl.url }); // Update state with new image
+      Alert.alert("Profile updated successfully");
     } catch (error) {
-      setIsLoading(false);
-      console.error("Error", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error:", error.response || error.message);
+      } else {
+        console.error("Error:", error);
+      }
+      Alert.alert(
+        "Failed to update profile",
+        (error as any).response?.data?.message || "An error occurred"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +112,7 @@ const ProfilePage = () => {
       </View>
     );
   }
+
   return (
     <View
       style={[styles.container, { backgroundColor: themeColors.background }]}
