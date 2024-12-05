@@ -240,7 +240,7 @@ function Account() {
           <Ionicons
             name="log-out-outline"
             size={24}
-            color={themeColors.text}
+            color={"white"}
             style={{ textAlign: "center" }}
           />
         </Text>

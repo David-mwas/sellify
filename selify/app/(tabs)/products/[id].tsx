@@ -38,7 +38,9 @@ const product = () => {
   const id = searchParams.get("id");
   const title = searchParams.get("title");
   const price = searchParams.get("price");
-  const image = searchParams.get("image");
+
+  const images = searchParams.get("image");
+
   const location = searchParams.get("location");
   const user = searchParams.get("user");
   // console.log("user", user);
@@ -66,11 +68,17 @@ const product = () => {
     expoPushToken: string;
     createdAt: Date;
   }
+  interface Image {
+    url: string;
+  }
 
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const userData: UserData = user
     ? JSON.parse(user)
     : ({ listings: [] } as UserData);
+
+  const productImage = images ? JSON.parse(images) : [];
+  console.log("images", productImage);
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
   const loc = location ? JSON.parse(location) : null;
 
@@ -164,7 +172,7 @@ const product = () => {
   };
 
   const renderImageSwiper = () => {
-    const images = [image, image, image /* Add more image URLs if available */];
+    const imagess = productImage;
 
     if (!images || images.length === 0) {
       return (
@@ -177,16 +185,54 @@ const product = () => {
     return (
       <Swiper
         style={styles.swiper}
+        nextButton={
+          <Text style={{ color: themeColors.tint }}>
+            <Ionicons
+              name="chevron-forward"
+              size={28}
+              color={themeColors.tint}
+            />
+          </Text>
+        }
+        prevButton={
+          <Text style={{ color: themeColors.tint }}>
+            <Ionicons name="chevron-back" size={28} color={themeColors.tint} />
+          </Text>
+        }
+        bounces
+        bouncesZoom
         showsButtons
-        autoplay
-        autoplayTimeout={3}
+        autoplay={true}
+        autoplayTimeout={5}
         loop
         dotColor={themeColors.text}
+        dot={
+          <View
+            style={{
+              backgroundColor: Colors.light.icon,
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              margin: 3,
+            }}
+          />
+        }
+        activeDot={
+          <View
+            style={{
+              backgroundColor: themeColors.tint,
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              margin: 3,
+            }}
+          />
+        }
         activeDotColor={themeColors.tint}
       >
-        {images.map((img, index) => (
+        {imagess?.map((img: Image, index: string) => (
           <View key={index} style={styles.slide}>
-            <Image source={{ uri: img || "" }} style={styles.images} />
+            <Image source={{ uri: img.url || "" }} style={styles.images} />
           </View>
         ))}
       </Swiper>

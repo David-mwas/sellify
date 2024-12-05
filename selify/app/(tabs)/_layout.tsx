@@ -6,6 +6,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  SafeAreaView,
 } from "react-native";
 import { AuthContext } from "@/contexts/AuthContext"; // For user authentication
 import { OnboardingContext } from "@/contexts/OnBoardingContext"; // For onboarding status
@@ -15,7 +16,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OnBoarding from "../(auth)/Onboarding";
 import Login from "../(auth)/Login";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import NewListingButton from "../components/NewListingButton";
+
 export default function TabLayout() {
   const authContext = useContext(AuthContext);
   const onboardingContext = useContext(OnboardingContext);
@@ -47,6 +48,9 @@ export default function TabLayout() {
   const headerTextColor = isDarkMode
     ? Colors.dark.headerText
     : Colors.light.headerText;
+  // Get current theme
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
+
   if (isAuthLoading) {
     return (
       <View
@@ -73,7 +77,7 @@ export default function TabLayout() {
   }
 
   return (
-    <>
+    <SafeAreaView style={{ backgroundColor: backgroundColor, flex: 1 }}>
       {/* StatusBar with dynamic theme */}
       <StatusBar
         barStyle={isDarkMode ? "light-content" : "dark-content"}
@@ -89,13 +93,18 @@ export default function TabLayout() {
           headerStyle: { backgroundColor: headerBackgroundColor },
           headerTintColor: headerTextColor,
           headerShown: false,
-          tabBarLabelStyle: {
-            fontSize: 12,
+          tabBarStyle: {
+            height: 60,
+            // borderTopWidth: 0,
             elevation: 5,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 5 },
+            shadowColor: "#f1f1f1",
+            shadowOffset: { width: 2, height: 5 },
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
+          },
+
+          tabBarLabelStyle: {
+            fontSize: 12,
           },
         }}
       >
@@ -118,10 +127,6 @@ export default function TabLayout() {
           name="add"
           options={({ navigation }) => ({
             title: "Post product",
-            // tabBarButton: () => (
-            //   <NewListingButton onPress={() => navigation.navigate("add")} />
-            // ),
-
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
                 name="plus-circle"
@@ -132,16 +137,6 @@ export default function TabLayout() {
           })}
         />
 
-        {/* <Tabs.Screen
-          name="inventory"
-          options={{
-            headerTitle: "My inventory",
-            headerTitleAlign: "center",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="folder-open" size={28} color={color} />
-            ),
-          }}
-        /> */}
         <Tabs.Screen
           name="account"
           options={{
@@ -152,19 +147,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </>
+    </SafeAreaView>
   );
 }
-// const styles = StyleSheet.create({
-//   userImage: {
-//     width: 50,
-//     height: 50,
-//     left: 5,
-//     borderRadius: 50,
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.25,
-//     shadowRadius: 3.84,
-//     elevation: 0.6,
-//   },
-// });

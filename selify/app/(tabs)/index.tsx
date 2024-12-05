@@ -88,7 +88,7 @@ function Index() {
                     id: item._id,
                     title: item.title,
                     price: item.price,
-                    image: item.images[0].url,
+                    image: JSON.stringify(item.images),
                     location: JSON.stringify(item.location),
                     user: JSON.stringify(item.userId),
                   },

@@ -23,6 +23,7 @@ import { Colors } from "@/constants/Colors";
 import { AuthContext } from "@/contexts/AuthContext";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { useLocation } from "@/hooks/useLocation";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 function Add() {
   const navigation = useNavigation();
@@ -218,150 +219,145 @@ function Add() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background}}>
-      <KeyboardAvoidingView
-        style={{ flex: 1}}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
+      <KeyboardAwareScrollView
+        bounces={true}
+        style={{ flex: 1 }}
+        // behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ padding: 16, gap: 16 }}>
-            <Text
-              style={{
-                color: themeColors.tint,
-                fontWeight: "bold",
-                fontSize: 18,
-              }}
-            >
-              Post a Product
-            </Text>
+        <View style={{ padding: 16, gap: 16 }}>
+          <Text
+            style={{
+              color: themeColors.tint,
+              fontWeight: "bold",
+              fontSize: 18,
+            }}
+          >
+            Post a Product
+          </Text>
 
-            {/* Image Picker */}
-            <Text style={{ color: themeColors.text }}>
-              Upload up to 3 images
-            </Text>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
-            >
-              {selectedImages.length < 3 && (
-                <TouchableOpacity
-                  onPress={handleImagePick}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    backgroundColor: "#ccc",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: 8,
-                  }}
-                >
-                  <Ionicons name="camera" size={24} color="#fff" />
-                </TouchableOpacity>
-              )}
-              <FlashList
-                data={selectedImages}
-                horizontal
-                renderItem={({ item, index }) => (
-                  <View style={{ position: "relative", marginHorizontal: 8 }}>
-                    <Image
-                      source={{ uri: item }}
-                      style={{ width: 100, height: 100 }}
-                    />
-                    <TouchableOpacity
-                      onPress={() => removeImage(index)}
-                      style={{ position: "absolute", top: 4, right: 4 }}
-                    >
-                      <Ionicons name="close-circle" size={24} color="#ff0000" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                estimatedItemSize={100}
-              />
-            </View>
-            {/* Other Inputs */}
-            <View
-              style={{ borderColor: inputBorderColor }}
-              className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
-            >
-              <Entypo name="new-message" size={20} color={themeColors.text} />
-              <TextInput
-                placeholder="Product Name"
-                placeholderTextColor={themeColors.text}
-                className="ml-2 flex-1"
-                onChangeText={setTitle}
+          {/* Image Picker */}
+          <Text style={{ color: themeColors.text }}>Upload up to 3 images</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {selectedImages.length < 3 && (
+              <TouchableOpacity
+                onPress={handleImagePick}
                 style={{
-                  padding: 8,
-                }}
-              />
-            </View>
-
-            <View
-              style={{ borderColor: inputBorderColor }}
-              className="border rounded-lg  flex flex-row items-center px-4 py-2"
-            >
-              <Entypo name="price-tag" size={20} color={themeColors.text} />
-              <TextInput
-                placeholder="Price"
-                placeholderTextColor={themeColors.text}
-                keyboardType="numeric"
-                onChangeText={(val) => setPrice(Number(val))}
-                className="ml-2 flex-1"
-                style={{
-                  padding: 8,
-                }}
-              />
-            </View>
-
-            <SelectList
-              placeholder="Select Category"
-              inputStyles={{
-                color: themeColors.text,
-              }}
-              setSelected={setSelected}
-              data={categories}
-              boxStyles={{ borderColor: themeColors.tint }}
-            />
-            <View
-              style={{ borderColor: inputBorderColor }}
-              className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
-            >
-              <MaterialIcons
-                name="description"
-                size={20}
-                color={themeColors.text}
-              />
-              <TextInput
-                placeholder="Description..."
-                className="ml-2 flex-1"
-                multiline={true}
-                numberOfLines={4}
-                onChangeText={setDescription}
-                placeholderTextColor={themeColors.text}
-              />
-            </View>
-            <TouchableOpacity
-              disabled={isUploading}
-              onPress={handlePostProduct}
-              style={{
-                backgroundColor: themeColors.tint,
-                padding: 12,
-                borderRadius: 20,
-                marginTop: 20,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  textTransform: "uppercase",
-                  fontWeight: "800",
+                  width: 100,
+                  height: 100,
+                  backgroundColor: "#ccc",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 8,
                 }}
               >
-                {isUploading ? "Posting product..." : "Post Product"}
-              </Text>
-            </TouchableOpacity>
+                <Ionicons name="camera" size={24} color="#fff" />
+              </TouchableOpacity>
+            )}
+            <FlashList
+              data={selectedImages}
+              horizontal
+              renderItem={({ item, index }) => (
+                <View style={{ position: "relative", marginHorizontal: 8 }}>
+                  <Image
+                    source={{ uri: item }}
+                    style={{ width: 100, height: 100 }}
+                  />
+                  <TouchableOpacity
+                    onPress={() => removeImage(index)}
+                    style={{ position: "absolute", top: 4, right: 4 }}
+                  >
+                    <Ionicons name="close-circle" size={24} color="#ff0000" />
+                  </TouchableOpacity>
+                </View>
+              )}
+              estimatedItemSize={100}
+            />
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+          {/* Other Inputs */}
+          <View
+            style={{ borderColor: inputBorderColor }}
+            className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
+          >
+            <Entypo name="new-message" size={20} color={themeColors.text} />
+            <TextInput
+              placeholder="Product Name"
+              placeholderTextColor={themeColors.text}
+              className="ml-2 flex-1"
+              onChangeText={setTitle}
+              style={{
+                padding: 8,
+              }}
+            />
+          </View>
+
+          <View
+            style={{ borderColor: inputBorderColor }}
+            className="border rounded-lg  flex flex-row items-center px-4 py-2"
+          >
+            <Entypo name="price-tag" size={20} color={themeColors.text} />
+            <TextInput
+              placeholder="Price"
+              placeholderTextColor={themeColors.text}
+              keyboardType="numeric"
+              onChangeText={(val) => setPrice(Number(val))}
+              className="ml-2 flex-1"
+              style={{
+                padding: 8,
+              }}
+            />
+          </View>
+
+          <SelectList
+            placeholder="Select Category"
+            inputStyles={{
+              color: themeColors.text,
+            }}
+            setSelected={setSelected}
+            data={categories}
+            boxStyles={{ borderColor: themeColors.tint }}
+          />
+          <View
+            style={{ borderColor: inputBorderColor }}
+            className="border rounded-lg w-full flex flex-row items-center px-4 py-2"
+          >
+            <MaterialIcons
+              name="description"
+              size={20}
+              color={themeColors.text}
+            />
+            <TextInput
+              placeholder="Description..."
+              className="ml-2 flex-1"
+              multiline={true}
+              numberOfLines={4}
+              onChangeText={setDescription}
+              placeholderTextColor={themeColors.text}
+            />
+          </View>
+          <TouchableOpacity
+            disabled={isUploading}
+            onPress={handlePostProduct}
+            style={{
+              backgroundColor: themeColors.tint,
+              padding: 12,
+              borderRadius: 20,
+              marginTop: 20,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                textTransform: "uppercase",
+                fontWeight: "800",
+              }}
+            >
+              {isUploading ? "Posting product..." : "Post Product"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
 
       {/* Modal */}
       <Modal

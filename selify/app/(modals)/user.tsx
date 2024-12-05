@@ -19,6 +19,7 @@ import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
 import { AuthContext } from "@/contexts/AuthContext";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 interface UserProfile {
   username: string;
@@ -114,7 +115,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <View
+    <KeyboardAwareScrollView
       style={[styles.container, { backgroundColor: themeColors.background }]}
     >
       <Stack.Screen
@@ -201,7 +202,7 @@ const ProfilePage = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 
