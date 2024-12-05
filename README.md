@@ -1,4 +1,4 @@
-# Selify - Sell items you nolonger need
+# Selify - Sell items you no longer need
 
 <div align="center">
 <img src="selify/assets/images/selify.png" width="250"/>
