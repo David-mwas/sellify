@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Text,
   View,
@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Dimensions,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
@@ -17,15 +18,40 @@ import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
 
 const { width } = Dimensions.get("window");
+type Category = {
+  name: string;
+  _id: string;
+  emoji: string;
+};
 
 function Index() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [category, setCategory] = useState<Category[] | null>(null);
 
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
+
+  const categoryRef = useRef<FlashList<Category> | null>(null);
+
+  const scrollCategory = (index: number) => {
+    categoryRef.current?.scrollToIndex({ index: index - 2, animated: true });
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/category`);
+      const data = await response.json();
+      if (response.ok) {
+        setCategory(data?.categories);
+      }
+      // console.log(data?.categories);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleFetchProducts = async () => {
     setIsLoading(true);
@@ -42,6 +68,7 @@ function Index() {
   };
 
   useEffect(() => {
+    fetchCategories();
     handleFetchProducts();
   }, []);
 
@@ -54,6 +81,30 @@ function Index() {
         style={styles.logo}
       />
 
+      {category && (
+        <FlashList
+          ref={categoryRef}
+          contentContainerStyle={{ padding: 4 }}
+          showsHorizontalScrollIndicator={false}
+          data={category}
+          horizontal
+          estimatedItemSize={19}
+          renderItem={({ item, index }) => (
+            <Pressable
+              onPress={() => scrollCategory(index)}
+              key={item._id}
+              style={{
+                marginHorizontal: 2,
+                backgroundColor: themeColors.icon,
+                borderRadius: 10,
+                padding: 10,
+              }}
+            >
+              <Text className="text-white">{item.emoji + " " + item.name}</Text>
+            </Pressable>
+          )}
+        />
+      )}
       {isLoading ? (
         <View style={{ flex: 1 }}>
           {[...Array(10)].map((_, index) => (
@@ -128,7 +179,7 @@ function Index() {
               </Link>
             </View>
           )}
-          estimatedItemSize={200}
+          estimatedItemSize={20}
           showsVerticalScrollIndicator={false}
           onRefresh={() => {
             setIsRefreshing(true);
