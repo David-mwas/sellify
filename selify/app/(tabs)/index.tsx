@@ -7,6 +7,8 @@ import {
   Dimensions,
   StyleSheet,
   Pressable,
+  Animated,
+  FlatList,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
@@ -18,6 +20,7 @@ import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
 
 const { width } = Dimensions.get("window");
+
 type Category = {
   name: string;
   _id: string;
@@ -28,28 +31,37 @@ function Index() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [category, setCategory] = useState<Category[] | null>(null);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
+  const [selected, setSelected] = useState<string | null>(null);
 
   const categoryRef = useRef<FlashList<Category> | null>(null);
 
   const scrollCategory = (index: number) => {
-    categoryRef.current?.scrollToIndex({ index: index - 2, animated: true });
+    categoryRef.current?.scrollToIndex({
+      index: index < 1 ? 0 : index - 1,
+      animated: true,
+    });
   };
-
+  const pressed = (id: string) => {
+    setSelected(id);
+  };
   const fetchCategories = async () => {
     try {
+      setIsLoadingCategories(true);
       const response = await fetch(`${apiUrl}/category`);
       const data = await response.json();
       if (response.ok) {
-        setCategory(data?.categories);
+        setCategories(data?.categories);
       }
-      // console.log(data?.categories);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoadingCategories(false);
     }
   };
 
@@ -68,8 +80,8 @@ function Index() {
   };
 
   useEffect(() => {
-    fetchCategories();
     handleFetchProducts();
+    fetchCategories();
   }, []);
 
   return (
@@ -81,46 +93,113 @@ function Index() {
         style={styles.logo}
       />
 
-      {category && (
+      {isLoadingCategories ? (
         <FlashList
-          ref={categoryRef}
-          contentContainerStyle={{ padding: 4 }}
-          showsHorizontalScrollIndicator={false}
-          data={category}
+          data={Array(5).fill({})}
           horizontal
-          estimatedItemSize={19}
-          renderItem={({ item, index }) => (
-            <Pressable
-              onPress={() => scrollCategory(index)}
-              key={item._id}
+          estimatedItemSize={50}
+          contentContainerStyle={{ paddingHorizontal: 2 }}
+          renderItem={() => (
+            <View
               style={{
+                flexDirection: "row",
+                alignItems: "center",
                 marginHorizontal: 2,
                 backgroundColor: themeColors.icon,
                 borderRadius: 10,
                 padding: 10,
+                width: 120,
+                justifyContent: "space-between",
               }}
             >
-              <Text className="text-white">{item.emoji + " " + item.name}</Text>
-            </Pressable>
+              <ShimmerPlaceholder
+                shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                }}
+              />
+              <ShimmerPlaceholder
+                shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                style={{
+                  height: 12,
+                  width: 60,
+                  borderRadius: 5,
+                }}
+              />
+            </View>
           )}
         />
+      ) : (
+        categories && (
+          <FlashList
+            ref={categoryRef}
+            contentContainerStyle={{ padding: 2 }}
+            showsHorizontalScrollIndicator={false}
+            data={categories}
+            horizontal
+            keyExtractor={(item) => item._id}
+            extraData={selected} // Ensure re-render on state change
+            renderItem={({ item, index }) => (
+              <Pressable
+                onPress={() => {
+                  pressed(item._id);
+                  scrollCategory(index);
+                }}
+                key={item._id}
+                style={{
+                  marginHorizontal: 2,
+                  backgroundColor:
+                    selected === item._id ? themeColors.tint : themeColors.icon,
+                  borderRadius: 10,
+                  padding: 10,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 20, textAlign: "center" }}>
+                    {item.emoji}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      textTransform: "capitalize",
+                      color: "white",
+                      marginLeft: 8,
+                      textAlign: "center",
+                    }}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+              </Pressable>
+            )}
+          />
+        )
       )}
+
       {isLoading ? (
-        <View style={{ flex: 1 }}>
+        <View style={styles.productsContainer}>
           {[...Array(10)].map((_, index) => (
-            <View key={index} style={styles.shimmerContainer}>
+            <View key={index} style={styles.productShimmer}>
               <ShimmerPlaceholder
                 style={styles.shimmerImage}
-                shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                shimmerColors={["#cccccc", "#dddddd", "#cccccc"]}
               />
               <View style={styles.shimmerTextContainer}>
                 <ShimmerPlaceholder
                   style={styles.shimmerTitle}
-                  shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                  shimmerColors={["#cccccc", "#dddddd", "#cccccc"]}
                 />
                 <ShimmerPlaceholder
                   style={styles.shimmerSubtitle}
-                  shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                  shimmerColors={["#cccccc", "#dddddd", "#cccccc"]}
                 />
               </View>
             </View>
@@ -209,6 +288,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: "hidden",
     elevation: 3,
+    flexDirection: "row",
   },
   shimmerImage: {
     width: "100%",
@@ -241,6 +321,8 @@ const styles = StyleSheet.create({
     objectFit: "cover",
     resizeMode: "cover",
   },
+  productsContainer: { flex: 1, marginTop: 10 },
+  productShimmer: { marginBottom: 20, borderRadius: 10, overflow: "hidden" },
   blurView: {
     position: "absolute",
     bottom: 0,
@@ -255,7 +337,7 @@ const styles = StyleSheet.create({
   },
   productTitle: {
     fontSize: 18,
-    fontWeight: "heavy",
+    fontWeight: "bold",
   },
   productPrice: {
     fontSize: 16,
