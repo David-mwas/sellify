@@ -18,6 +18,8 @@ import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
+import { AuthContext } from "@/contexts/AuthContext";
+import { UserProfile } from "./account";
 
 const { width } = Dimensions.get("window");
 
@@ -29,17 +31,32 @@ type Category = {
 
 function Index() {
   const [products, setProducts] = useState<any[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [isUserLoading, setIsUserLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const [userProfile, setUserProfile] = useState<UserProfile>();
+
+  const categoryRef = useRef<FlashList<Category> | null>(null);
+
+  const authContext = useContext(AuthContext);
 
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const [selected, setSelected] = useState<string | null>(null);
 
-  const categoryRef = useRef<FlashList<Category> | null>(null);
+  if (!authContext || !themeContext) {
+    throw new Error("Contexts not found");
+  }
+
+  const { userToken } = authContext;
+
+  const animatedCategoryOpacity = useRef(new Animated.Value(1)).current;
+  const shimmerScale = useRef(new Animated.Value(1)).current;
 
   const scrollCategory = (index: number) => {
     categoryRef.current?.scrollToIndex({
@@ -47,9 +64,65 @@ function Index() {
       animated: true,
     });
   };
+
   const pressed = (id: string) => {
     setSelected(id);
+
+    // Animate category selection
+    Animated.sequence([
+      Animated.timing(animatedCategoryOpacity, {
+        toValue: 0.7,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedCategoryOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
+
+  const animateShimmer = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerScale, {
+          toValue: 1.08,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerScale, {
+          toValue: 0.9,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  const fetchUserProfile = async () => {
+    setIsUserLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/user/profile`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      if (response.ok) {
+        setIsUserLoading(false);
+        const data = await response.json();
+        setUserProfile(data?.userProfile);
+        // console.log("userdata ", data);
+      }
+    } catch (error) {
+      setIsUserLoading(false);
+      console.error("Error", error);
+    } finally {
+      setIsUserLoading(false);
+    }
+  };
+
   const fetchCategories = async () => {
     try {
       setIsLoadingCategories(true);
@@ -80,37 +153,67 @@ function Index() {
   };
 
   useEffect(() => {
+    fetchUserProfile();
     handleFetchProducts();
     fetchCategories();
+    animateShimmer();
   }, []);
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: themeColors.background }]}
     >
-      <Image
-        source={require("@/assets/images/selify.png")}
-        style={styles.logo}
-      />
-
+      <View className="w-full flex-row items-center justify-between ">
+        <Image
+          source={require("@/assets/images/selify.png")}
+          style={styles.logo}
+        />
+        <View className="flex-col">
+          {userProfile?.imageUrl ? (
+            <Image
+              source={{ uri: userProfile?.imageUrl?.url }}
+              className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                shadowColor: themeColors.tint,
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                borderColor: themeColors.tint,
+                borderWidth: 1,
+              }}
+            />
+          ) : (
+            <Text
+              className="p-4 rounded-full items-center flex justify-center text-center text-white font-extrabold  mr-2 w-[50px] h-[50px]"
+              style={{
+                color: "#eee",
+                backgroundColor: "#999",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+              }}
+            >
+              {userProfile?.username.slice(0, 2)}
+            </Text>
+          )}
+        </View>
+      </View>
       {isLoadingCategories ? (
         <FlashList
           data={Array(5).fill({})}
           horizontal
           estimatedItemSize={50}
-          contentContainerStyle={{ paddingHorizontal: 2 }}
+          contentContainerStyle={{ padding: 2 }}
+          showsHorizontalScrollIndicator={false}
           renderItem={() => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 2,
-                backgroundColor: themeColors.icon,
-                borderRadius: 10,
-                padding: 10,
-                width: 120,
-                justifyContent: "space-between",
-              }}
+            <Animated.View
+              style={[
+                styles.shimmerContainer,
+                { transform: [{ scale: shimmerScale }] },
+              ]}
             >
               <ShimmerPlaceholder
                 shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
@@ -128,7 +231,7 @@ function Index() {
                   borderRadius: 5,
                 }}
               />
-            </View>
+            </Animated.View>
           )}
         />
       ) : (
@@ -156,8 +259,10 @@ function Index() {
                   padding: 10,
                 }}
               >
-                <View
+                <Animated.View
                   style={{
+                    opacity:
+                      selected === item._id ? animatedCategoryOpacity : 1,
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
@@ -177,7 +282,7 @@ function Index() {
                   >
                     {item.name}
                   </Text>
-                </View>
+                </Animated.View>
               </Pressable>
             )}
           />
@@ -283,12 +388,14 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   shimmerContainer: {
-    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 2,
     backgroundColor: "#e0e0e0",
     borderRadius: 10,
-    overflow: "hidden",
-    elevation: 3,
-    flexDirection: "row",
+    padding: 10,
+    width: 120,
+    justifyContent: "space-between",
   },
   shimmerImage: {
     width: "100%",
@@ -342,6 +449,18 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+
+  profileDetails: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: "gray",
   },
 });
 
