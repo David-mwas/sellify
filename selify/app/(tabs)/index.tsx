@@ -100,52 +100,60 @@ function Index() {
     ).start();
   };
 
-  const fetchUserProfile = async () => {
+  const fetchData = async () => {
+    setIsLoading(true);
+    setIsLoadingCategories(true);
     setIsUserLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/user/profile`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-      if (response.ok) {
-        setIsUserLoading(false);
-        const data = await response.json();
-        setUserProfile(data?.userProfile);
-        // console.log("userdata ", data);
-      }
-    } catch (error) {
-      setIsUserLoading(false);
-      console.error("Error", error);
-    } finally {
-      setIsUserLoading(false);
-    }
-  };
 
-  const fetchCategories = async () => {
     try {
-      setIsLoadingCategories(true);
-      const response = await fetch(`${apiUrl}/category`);
-      const data = await response.json();
-      if (response.ok) {
-        setCategories(data?.categories);
+      const [userProfileResponse, categoriesResponse, productsResponse] =
+        await Promise.all([
+          fetch(`${apiUrl}/user/profile`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }),
+          fetch(`${apiUrl}/category`),
+          fetch(`${apiUrl}/products`),
+        ]);
+
+      if (userProfileResponse.ok) {
+        const userData = await userProfileResponse.json();
+        setUserProfile(userData.userProfile);
+      }
+
+      if (categoriesResponse.ok) {
+        const categoryData = await categoriesResponse.json();
+        setCategories(categoryData.categories);
+      }
+
+      if (productsResponse.ok) {
+        const productData = await productsResponse.json();
+        setProducts(productData.products);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching data:", error);
     } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
       setIsLoadingCategories(false);
+      setIsUserLoading(false);
     }
   };
 
   const handleFetchProducts = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await fetch(`${apiUrl}/products`);
-      const data = await response.json();
-      setProducts(data.products);
+      if (response.ok) {
+        setIsLoading(false);
+        const data = await response.json();
+        setProducts(data.products);
+      }
     } catch (error) {
-      console.error(error);
+      setIsLoading(false);
+      console.error("Error fetching products:", error);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -153,9 +161,7 @@ function Index() {
   };
 
   useEffect(() => {
-    fetchUserProfile();
-    handleFetchProducts();
-    fetchCategories();
+    fetchData();
     animateShimmer();
   }, []);
 
@@ -271,7 +277,7 @@ function Index() {
                   <Text style={{ fontSize: 20, textAlign: "center" }}>
                     {item.emoji}
                   </Text>
-                  <Text
+                  <Text 
                     style={{
                       fontSize: 16,
                       textTransform: "capitalize",
