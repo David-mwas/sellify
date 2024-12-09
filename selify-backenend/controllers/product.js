@@ -44,14 +44,21 @@ exports.getProductById = async (req, res) => {
 
 // Get products by category
 exports.getProductsByCategory = async (req, res) => {
+  console.log("getProductsByCategory");
   try {
     const { categoryId } = req.params;
-    const products = await productModel.find({ categoryId });
+    console.log("categoryId", categoryId);
+    const products = await productModel
+      .find({ categoryId })
+      .sort({ createdAt: -1 })
+      .populate("categoryId")
+      .populate("userId");;
 
-    if (!products.length) {
+    if (products.length < 0) {
+      products = [];
       return res
         .status(404)
-        .json({ message: "No products found for this category" });
+        .json({ message: "No products found for this category", products });
     }
 
     res.status(200).json({ products });

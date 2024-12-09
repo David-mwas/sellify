@@ -82,6 +82,9 @@ function Index() {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Fetch products by category
+    handleFetchProductsByCategory(id);
   };
 
   const animateShimmer = () => {
@@ -160,12 +163,30 @@ function Index() {
       setIsRefreshing(false);
     }
   };
+  console.log(selected);
+  const handleFetchProductsByCategory = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${apiUrl}/products/category/${id}`);
+      if (response.ok) {
+        setIsLoading(false);
+        const data = await response.json();
+        setProducts(data.products);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
     animateShimmer();
   }, []);
-
+  console.log(products.map((product) => product.title + product._id));
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: themeColors.background }]}
@@ -252,6 +273,7 @@ function Index() {
               <Pressable
                 onPress={() => {
                   pressed(item._id);
+                  // handleFetchProductsByCategory(item._id);
                   scrollCategory(index);
                 }}
                 key={item._id}
@@ -316,6 +338,7 @@ function Index() {
         </View>
       ) : (
         <FlashList
+          // extraData={selected}
           data={products}
           keyExtractor={(item) => item?._id}
           renderItem={({ item }) => (
@@ -324,12 +347,12 @@ function Index() {
                 href={{
                   pathname: "/(tabs)/products/[id]",
                   params: {
-                    id: item._id,
+                    id: item?._id,
                     title: item.title,
                     price: item.price,
-                    image: JSON.stringify(item.images),
+                    image: JSON.stringify(item?.images),
                     location: JSON.stringify(item.location),
-                    user: JSON.stringify(item.userId),
+                    user: JSON.stringify(item?.userId),
                   },
                 }}
               >

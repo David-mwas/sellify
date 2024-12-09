@@ -40,10 +40,11 @@ const product = () => {
   const price = searchParams.get("price");
 
   const images = searchParams.get("image");
+  // console.log("images", images);
 
   const location = searchParams.get("location");
   const user = searchParams.get("user");
-  // console.log("user", user);
+  console.log("user", user);
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
@@ -76,7 +77,7 @@ const product = () => {
   const userData: UserData = user
     ? JSON.parse(user)
     : ({ listings: [] } as UserData);
-
+console.log("userData", userData);
   const productImage = images ? JSON.parse(images) : [];
   console.log("images", productImage);
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -110,7 +111,9 @@ const product = () => {
   useEffect(() => {
     const fetchUserListings = async () => {
       try {
-        const response = await fetch(`${apiUrl}/products/user/${userData._id}`);
+        const response = await fetch(
+          `${apiUrl}/products/user/${userData?._id}`
+        );
         if (response.ok) {
           const data = await response.json();
           setListings(data?.products);
@@ -181,7 +184,7 @@ const product = () => {
   const renderImageSwiper = () => {
     const imagess = productImage;
 
-    if (!images || images.length === 0) {
+    if (!images || images?.length === 0) {
       return (
         <View style={styles.imagePlaceholder}>
           <Text style={{ color: themeColors.text }}>No images available</Text>
@@ -237,11 +240,15 @@ const product = () => {
         }
         activeDotColor={themeColors.tint}
       >
-        {imagess?.map((img: Image, index: string) => (
-          <View key={index} style={styles.slide}>
-            <Image source={{ uri: img.url || "" }} style={styles.images} />
-          </View>
-        ))}
+        {imagess?.length > 0 ? (
+          imagess?.map((img: Image, index: string) => (
+            <View key={index} style={styles.slide}>
+              <Image source={{ uri: img?.url || "" }} style={styles.images} />
+            </View>
+          ))
+        ) : (
+          <Text>No images</Text>
+        )}
       </Swiper>
     );
   };
@@ -294,9 +301,9 @@ const product = () => {
               Posted by
             </Text>
             <TouchableOpacity className="flex flex-row  gap-2 mt-2 mb-2 ml-4">
-              {userData.imageUrl.url ? (
+              {userData?.imageUrl?.url ? (
                 <Image
-                  source={{ uri: userData.imageUrl.url || "" }}
+                  source={{ uri: userData.imageUrl?.url || "" }}
                   className="w-[3rem] h-[3rem] object-contain rounded-full"
                 />
               ) : (
@@ -310,16 +317,16 @@ const product = () => {
                     textAlign: "center",
                   }}
                 >
-                  {userData.username.slice(0, 2)}
+                  {userData?.username?.slice(0, 2) || "U1"}
                 </Text>
               )}
 
               <View className="flex-1">
                 <Text style={{ fontWeight: "800", color: themeColors.text }}>
-                  {userData.username}
+                  {userData?.username}
                 </Text>
                 <Text style={{ fontWeight: "500", color: themeColors.text }}>
-                  {userData.listings.length || listings?.length} Listings
+                  {userData?.listings?.length || listings?.length} Listings
                 </Text>
               </View>
               <View className="self-center">
