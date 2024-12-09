@@ -20,6 +20,7 @@ import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
 import { AuthContext } from "@/contexts/AuthContext";
 import { UserProfile } from "./account";
+import { opacity } from "react-native-reanimated/lib/typescript/Colors";
 
 const { width } = Dimensions.get("window");
 
@@ -216,10 +217,7 @@ function Index() {
           showsHorizontalScrollIndicator={false}
           renderItem={() => (
             <Animated.View
-              style={[
-                styles.shimmerContainer,
-                { transform: [{ scale: shimmerScale }] },
-              ]}
+              style={[styles.shimmerContainer, { opacity: shimmerScale }]}
             >
               <ShimmerPlaceholder
                 shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
@@ -277,7 +275,7 @@ function Index() {
                   <Text style={{ fontSize: 20, textAlign: "center" }}>
                     {item.emoji}
                   </Text>
-                  <Text 
+                  <Text
                     style={{
                       fontSize: 16,
                       textTransform: "capitalize",

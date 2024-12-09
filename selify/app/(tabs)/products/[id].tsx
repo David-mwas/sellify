@@ -145,7 +145,14 @@ const product = () => {
     const { display_name } = locationData;
 
     return (
-      <View style={styles.locationCard}>
+      <View
+        style={[
+          styles.locationCard,
+          {
+            backgroundColor: themeColors.cardBg,
+          },
+        ]}
+      >
         <View className="flex flex-row w-full ">
           <Ionicons name="location" size={18} color={themeColors.tint} />
           <Text
@@ -381,16 +388,15 @@ const styles = StyleSheet.create({
   image: { width: "100%", height: 300, marginBottom: 5 },
 
   locationCard: {
-    // padding: 15,
-    paddingHorizontal: 4,
+    paddingHorizontal: 10,
     paddingTop: 20,
-    paddingBottom: 10,
+    paddingBottom: 15,
     marginTop: 15,
     borderRadius: 8,
-    shadowColor: "#c58343cc",
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: 1,
     elevation: 1,
   },
   locationItem: { fontSize: 16, marginBottom: 5 },
