@@ -21,6 +21,7 @@ import { BlurView } from "expo-blur";
 import { AuthContext } from "@/contexts/AuthContext";
 import { UserProfile } from "./account";
 import { opacity } from "react-native-reanimated/lib/typescript/Colors";
+import LottieView from "lottie-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -337,67 +338,99 @@ function Index() {
           ))}
         </View>
       ) : (
-        <FlashList
-          // extraData={selected}
-          data={products}
-          keyExtractor={(item) => item?._id}
-          renderItem={({ item }) => (
-            <View style={styles.productContainer}>
-              <Link
-                href={{
-                  pathname: "/(tabs)/products/[id]",
-                  params: {
-                    id: item?._id,
-                    title: item.title,
-                    price: item.price,
-                    image: JSON.stringify(item?.images),
-                    location: JSON.stringify(item.location),
-                    user: JSON.stringify(item?.userId),
-                  },
+        <>
+          {products.length === 0 ? (
+            <View className="justify-center items-center">
+              <LottieView
+                autoPlay
+                style={{
+                  width: 200,
+                  height: 200,
+                  backgroundColor: "transparent",
+                  marginTop: 20,
+                }}
+                // Find more Lottie files at
+                source={require("../../assets/lottie/Animation - 1732533924789.json")}
+              />
+              <Text
+                style={{
+                  color: themeColors.text,
+                  textAlign: "center",
+                  marginTop: 20,
+                  fontWeight: "bold",
+                  fontSize: 20,
                 }}
               >
-                <View style={{ flex: 1, width: "100%" }}>
-                  <Image
-                    source={{ uri: item.images[0].url }}
-                    style={styles.productImage}
-                    className="object-top"
-                  />
-                  <BlurView
-                    intensity={100}
-                    tint="light"
-                    style={styles.blurView}
-                  >
-                    <Text
-                      style={[
-                        styles.productTitle,
-                        { color: Colors.light.text },
-                      ]}
-                    >
-                      {item.title}
-                    </Text>
-                    <Text
-                      style={[styles.productPrice, { color: themeColors.tint }]}
-                    >
-                      <Entypo
-                        name="price-tag"
-                        size={16}
-                        color={themeColors.tint}
-                      />{" "}
-                      KES {item.price}
-                    </Text>
-                  </BlurView>
-                </View>
-              </Link>
+                No products found!
+              </Text>
             </View>
+          ) : (
+            <FlashList
+              // extraData={selected}
+              data={products}
+              keyExtractor={(item) => item?._id}
+              renderItem={({ item }) => (
+                <View style={styles.productContainer}>
+                  <Link
+                    href={{
+                      pathname: "/(tabs)/products/[id]",
+                      params: {
+                        id: item?._id,
+                        title: item.title,
+                        price: item.price,
+                        image: JSON.stringify(item?.images),
+                        location: JSON.stringify(item.location),
+                        user: JSON.stringify(item?.userId),
+                      },
+                    }}
+                  >
+                    <View style={{ flex: 1, width: "100%" }}>
+                      <Image
+                        source={{ uri: item.images[0].url }}
+                        style={styles.productImage}
+                        className="object-top"
+                      />
+                      <BlurView
+                        intensity={100}
+                        tint="light"
+                        style={styles.blurView}
+                      >
+                        <Text
+                          style={[
+                            styles.productTitle,
+                            { color: Colors.light.text },
+                          ]}
+                        >
+                          {item.title}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.productPrice,
+                            { color: themeColors.tint },
+                          ]}
+                        >
+                          <Entypo
+                            name="price-tag"
+                            size={16}
+                            color={themeColors.tint}
+                          />{" "}
+                          KES {item.price}
+                        </Text>
+                      </BlurView>
+                    </View>
+                  </Link>
+                </View>
+              )}
+              estimatedItemSize={20}
+              showsVerticalScrollIndicator={false}
+              onRefresh={() => {
+                setIsRefreshing(true);
+                handleFetchProducts();
+              }}
+              refreshing={isRefreshing}
+            />
           )}
-          estimatedItemSize={20}
-          showsVerticalScrollIndicator={false}
-          onRefresh={() => {
-            setIsRefreshing(true);
-            handleFetchProducts();
-          }}
-          refreshing={isRefreshing}
-        />
+        </>
       )}
     </SafeAreaView>
   );
