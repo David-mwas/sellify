@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Pressable,
   Animated,
-  FlatList,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
@@ -19,9 +18,10 @@ import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
 import { AuthContext } from "@/contexts/AuthContext";
-import { UserProfile } from "./account";
-import { opacity } from "react-native-reanimated/lib/typescript/Colors";
+import { useUserContext } from "@/contexts/userContext";
+
 import LottieView from "lottie-react-native";
+import NetInfo from "@react-native-community/netinfo";
 
 const { width } = Dimensions.get("window");
 
@@ -37,11 +37,9 @@ function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [isUserLoading, setIsUserLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
-
-  const [userProfile, setUserProfile] = useState<UserProfile>();
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
 
   const categoryRef = useRef<FlashList<Category> | null>(null);
 
@@ -51,9 +49,16 @@ function Index() {
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
+  const { userProfile, isLoading: loading, error } = useUserContext();
+
   if (!authContext || !themeContext) {
     throw new Error("Contexts not found");
   }
+
+  NetInfo.fetch().then((state) => {
+    console.log("Connection type", state.type);
+    console.log("Is connected?", state.isConnected);
+  });
 
   const { userToken } = authContext;
 
@@ -108,25 +113,12 @@ function Index() {
   const fetchData = async () => {
     setIsLoading(true);
     setIsLoadingCategories(true);
-    setIsUserLoading(true);
 
     try {
-      const [userProfileResponse, categoriesResponse, productsResponse] =
-        await Promise.all([
-          fetch(`${apiUrl}/user/profile`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }),
-          fetch(`${apiUrl}/category`),
-          fetch(`${apiUrl}/products`),
-        ]);
-
-      if (userProfileResponse.ok) {
-        const userData = await userProfileResponse.json();
-        setUserProfile(userData.userProfile);
-      }
+      const [categoriesResponse, productsResponse] = await Promise.all([
+        fetch(`${apiUrl}/category`),
+        fetch(`${apiUrl}/products`),
+      ]);
 
       if (categoriesResponse.ok) {
         const categoryData = await categoriesResponse.json();
@@ -143,7 +135,6 @@ function Index() {
       setIsLoading(false);
       setIsRefreshing(false);
       setIsLoadingCategories(false);
-      setIsUserLoading(false);
     }
   };
 
@@ -164,7 +155,6 @@ function Index() {
       setIsRefreshing(false);
     }
   };
-  console.log(selected);
   const handleFetchProductsByCategory = async (id: string) => {
     try {
       setIsLoading(true);
@@ -183,15 +173,43 @@ function Index() {
     }
   };
 
+  console.log(userToken);
+
   useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected);
+    });
     fetchData();
     animateShimmer();
+    // Subscribe to network state updates
+
+    return () => unsubscribe();
   }, []);
-  console.log(products.map((product) => product.title + product._id));
+
+  const renderNetworkStatus = () => {
+    if (isConnected === false) {
+      return (
+        <Text
+          style={{
+            color: "white",
+            backgroundColor: "red",
+            padding: 10,
+            textAlign: "center",
+          }}
+        >
+          No Network Connected
+        </Text>
+      );
+    }
+  };
+  console.log("userProfile", userProfile);
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: themeColors.background }]}
     >
+      {/* Network Status */}
+      {renderNetworkStatus()}
+
       <View className="w-full flex-row items-center justify-between ">
         <Image
           source={require("@/assets/images/selify.png")}
@@ -199,21 +217,38 @@ function Index() {
         />
         <View className="flex-col">
           {userProfile?.imageUrl ? (
-            <Image
-              source={{ uri: userProfile?.imageUrl?.url }}
-              className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                shadowColor: themeColors.tint,
-                shadowOffset: { width: 0, height: 10 },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                borderColor: themeColors.tint,
-                borderWidth: 1,
-              }}
-            />
+            <View>
+              <Image
+                source={{ uri: userProfile?.imageUrl?.url }}
+                className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  shadowColor: themeColors.tint,
+                  shadowOffset: { width: 0, height: 10 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  borderColor: themeColors.tint,
+                  borderWidth: 1,
+                }}
+              />
+              {isConnected && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: 12,
+                    height: 12,
+                    backgroundColor: "green",
+                    borderRadius: 50,
+                    borderWidth: 2,
+                    borderColor: "white",
+                  }}
+                />
+              )}
+            </View>
           ) : (
             <Text
               className="p-4 rounded-full items-center flex justify-center text-center text-white font-extrabold  mr-2 w-[50px] h-[50px]"
@@ -424,6 +459,7 @@ function Index() {
               estimatedItemSize={20}
               showsVerticalScrollIndicator={false}
               onRefresh={() => {
+                setSelected(null);
                 setIsRefreshing(true);
                 handleFetchProducts();
               }}

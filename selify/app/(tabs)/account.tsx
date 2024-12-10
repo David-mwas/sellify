@@ -15,6 +15,7 @@ import { apiUrl } from "@/constants/api";
 import { Link } from "expo-router";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Colors } from "@/constants/Colors";
+import { useUserContext } from "@/contexts/userContext";
 
 export interface UserProfile {
   location: Location;
@@ -29,11 +30,7 @@ export interface UserProfile {
 }
 
 function Account() {
-  const [isLoading, setIsLoading] = useState(true);
-
   const authContext = useContext(AuthContext);
-
-  const [userProfile, setUserProfile] = useState<UserProfile>();
 
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
@@ -43,37 +40,12 @@ function Account() {
     throw new Error("Contexts not found");
   }
 
-  const { logout, userToken } = authContext;
+  const { logout } = authContext;
+  const { userProfile, isLoading } = useUserContext();
 
   const [isNotificationsEnabled, setIsNotificationsEnabled] =
     React.useState(true);
   const [language, setLanguage] = useState("English");
-
-  useLayoutEffect(() => {
-    const fetchUserProfile = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${apiUrl}/user/profile`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
-        if (response.ok) {
-          setIsLoading(false);
-          const data = await response.json();
-          setUserProfile(data?.userProfile);
-          // console.log("userdata ", data);
-        }
-      } catch (error) {
-        setIsLoading(false);
-        console.error("Error", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUserProfile();
-  }, [userToken]);
 
   const toggleNotifications = () =>
     setIsNotificationsEnabled((previousState) => !previousState);
@@ -82,7 +54,6 @@ function Account() {
     // Toggle between languages (example)
     setLanguage((prev) => (prev === "English" ? "Spanish" : "English"));
   };
-  console.log("userProfile", userProfile?.imageUrl.url);
   return (
     <View
       style={[styles.container, { backgroundColor: themeColors.background }]}
@@ -95,12 +66,6 @@ function Account() {
           params: {
             // id: userProfile?._id!,
             userdata: JSON.stringify(userProfile),
-
-            // title: item.title,
-            // price: item.price,
-            // image: item.images[0].url,
-            // location: JSON.stringify(item.location),
-            // user: JSON.stringify(item.userId),
           },
         }}
         style={styles.profileContainer}
