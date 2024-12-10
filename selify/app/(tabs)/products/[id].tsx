@@ -4,6 +4,7 @@ import React, {
   useRef,
   useCallback,
   useContext,
+  useMemo,
 } from "react";
 import {
   View,
@@ -12,8 +13,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Button,
+  Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -77,7 +80,7 @@ const product = () => {
   const userData: UserData = user
     ? JSON.parse(user)
     : ({ listings: [] } as UserData);
-console.log("userData", userData);
+  console.log("userData", userData);
   const productImage = images ? JSON.parse(images) : [];
   console.log("images", productImage);
   // const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -107,7 +110,6 @@ console.log("userData", userData);
     fetchLocation();
   }, []);
 
-  // console.log("id", userData._id);
   useEffect(() => {
     const fetchUserListings = async () => {
       try {
@@ -117,7 +119,6 @@ console.log("userData", userData);
         if (response.ok) {
           const data = await response.json();
           setListings(data?.products);
-          // console.log("userdata ", data);
         }
       } catch (error) {
         console.error("Error", error);
@@ -253,6 +254,15 @@ console.log("userData", userData);
     );
   };
 
+  // Memoize snap points for performance
+  const snapPoints = useMemo(() => ["25%", "50%"], []);
+
+  const contactModalRef = useRef<BottomSheetModal>(null);
+
+  // Handlers for modals
+  const handleContactModalPress = useCallback(() => {
+    contactModalRef.current?.present();
+  }, []);
   return (
     <GestureHandlerRootView
       style={[{ flex: 1 }, { backgroundColor: themeColors.background }]}
@@ -338,28 +348,89 @@ console.log("userData", userData);
                 />
               </View>
             </TouchableOpacity>
-            {/* <View
-              className="w-full h-[.3px] mb-2"
-              style={{ backgroundColor: themeColors.tint }}
-            /> */}
-            <TouchableOpacity
-              className="w-full p-4 rounded-[30px] mt-6"
-              style={{ backgroundColor: themeColors.tint }}
+            <Pressable
+              onPress={() => handleContactModalPress()}
+              style={{
+                backgroundColor: themeColors.tint,
+                borderRadius: 30,
+                padding: 14,
+                marginTop: 10,
+              }}
             >
               <Text className="text-white text-center font-semibold uppercase">
                 Contact Seller
               </Text>
-            </TouchableOpacity>
+            </Pressable>
             {renderLocationDetails()}
           </View>
         </ParallaxScrollView>
+        <BottomSheetModal
+          ref={contactModalRef}
+          onChange={handleSheetChanges}
+          snapPoints={["50%", "90%"]}
+         
+        >
+          <BottomSheetView  style={{
+            backgroundColor: "#f1f1f1",
+            padding: 20,
+            borderRadius: 10,
+          }}>
+            <View style={{ padding: 20 }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 15,
+                  color:"#333",
+                }}
+              >
+                Contact Seller
+              </Text>
+
+              {/* Message Seller Option */}
+              <TouchableOpacity
+                onPress={() => Alert.alert("Message Seller")}
+                style={[
+                  styles.contactOption,
+                  { backgroundColor: themeColors.cardBg },
+                ]}
+              >
+                <Ionicons
+                  name="chatbubbles"
+                  size={24}
+                  color={themeColors.tint}
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={{ color: themeColors.text }}>Message</Text>
+              </TouchableOpacity>
+
+              {/* Call Seller Option */}
+              <TouchableOpacity
+                onPress={() =>
+                  Alert.alert(`Call Seller`, `Phone: ${userData.phoneNumber}`)
+                }
+                style={[
+                  styles.contactOption,
+                  { backgroundColor: themeColors.cardBg },
+                ]}
+              >
+                <Ionicons
+                  name="call"
+                  size={24}
+                  color={themeColors.tint}
+                  style={{ marginRight: 10 }}
+                />
+                <Text style={{ color: themeColors.text }}>Call</Text>
+              </TouchableOpacity>
+            </View>
+          </BottomSheetView>
+        </BottomSheetModal>
 
         {locationData && (
           <BottomSheetModal
             ref={bottomSheetModalRef}
             onChange={handleSheetChanges}
             snapPoints={["50%", "90%"]}
-            style={styles.bottomSheet}
           >
             <BottomSheetView style={styles.mapContainer}>
               <MapView
@@ -423,13 +494,6 @@ const styles = StyleSheet.create({
   mapButtonText: { color: "#fff", fontSize: 16 },
   mapContainer: { flex: 1 },
   map: { width: "100%", height: "100%" },
-  bottomSheet: {
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowOpacity: 0.2,
-    // shadowRadius: 4,
-    // elevation: 1,
-  },
 
   swiper: {
     height: 300, // Adjust to your preferred height
@@ -449,6 +513,24 @@ const styles = StyleSheet.create({
     height: 300,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "red", // Placeholder background
+    backgroundColor: "tomato", // Placeholder background
+  },
+  contactButton: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  contactOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 1,
   },
 });

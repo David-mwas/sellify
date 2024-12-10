@@ -173,15 +173,13 @@ function Index() {
     }
   };
 
-  console.log(userToken);
-
   useEffect(() => {
+    // Subscribe to network state updates
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
     fetchData();
     animateShimmer();
-    // Subscribe to network state updates
 
     return () => unsubscribe();
   }, []);
@@ -192,7 +190,7 @@ function Index() {
         <Text
           style={{
             color: "white",
-            backgroundColor: "red",
+            backgroundColor: "tomato",
             padding: 10,
             textAlign: "center",
           }}
@@ -202,7 +200,7 @@ function Index() {
       );
     }
   };
-  console.log("userProfile", userProfile);
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: themeColors.background }]}
