@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useLayoutEffect,
 } from "react";
 import {
   View,
@@ -12,11 +13,14 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  Button,
   Alert,
+  Linking,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-
+import { Easing } from "react-native-reanimated";
+import parsePhoneNumber, {
+  parsePhoneNumberFromString,
+} from "libphonenumber-js";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -29,14 +33,18 @@ import ParallaxScrollView from "../../../app-example/components/ParallaxScrollVi
 import {
   GestureHandlerRootView,
   Pressable,
+  TextInput,
 } from "react-native-gesture-handler";
 import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
 import Swiper from "react-native-swiper";
+import * as SMS from "expo-sms";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const product = () => {
+  const [message, setMessage] = useState("");
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const title = searchParams.get("title");
@@ -47,7 +55,6 @@ const product = () => {
 
   const location = searchParams.get("location");
   const user = searchParams.get("user");
-  console.log("user", user);
   const themeContext = useContext(ThemeContext); // Access the theme context
   const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
@@ -80,14 +87,13 @@ const product = () => {
   const userData: UserData = user
     ? JSON.parse(user)
     : ({ listings: [] } as UserData);
-  console.log("userData", userData);
+
   const productImage = images ? JSON.parse(images) : [];
-  console.log("images", productImage);
-  // const bottomSheetRef = useRef<BottomSheetModal>(null);
+
   const loc = location ? JSON.parse(location) : null;
 
   const [listings, setListings] = useState<any[] | null>(null);
-  // console.log(loc.latitude, loc.longitude);
+
   useEffect(() => {
     const fetchLocation = async () => {
       const headersList = {
@@ -129,6 +135,7 @@ const product = () => {
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const contactModalRef = useRef<BottomSheetModal>(null);
 
   // callbacks
   const handlePresentModalPress = useCallback(() => {
@@ -137,6 +144,8 @@ const product = () => {
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
   }, []);
+
+  const snapPoints = useMemo(() => ["50%", "90%"], []);
 
   const renderLocationDetails = () => {
     if (!locationData)
@@ -254,22 +263,102 @@ const product = () => {
     );
   };
 
-  // Memoize snap points for performance
-  const snapPoints = useMemo(() => ["25%", "50%"], []);
-
-  const contactModalRef = useRef<BottomSheetModal>(null);
-
   // Handlers for modals
   const handleContactModalPress = useCallback(() => {
+    // setIsOpened(true);
     contactModalRef.current?.present();
   }, []);
+
+  useLayoutEffect(() => {
+    bottomSheetModalRef.current?.dismiss({ easing: Easing.inOut(Easing.ease) });
+    contactModalRef.current?.dismiss({
+      easing: Easing.inOut(Easing.elastic()),
+    });
+  }, [id]);
+  const sendSMS = async () => {
+    if (!userData?.phoneNumber) {
+      Alert.alert("Error", "phone number not available");
+      return;
+    }
+    if (!message) {
+      Alert.alert("Error", "SMS Message cannot be empty");
+      return;
+    }
+
+    // Check if SMS is available on the device
+    const isAvailable = await SMS.isAvailableAsync();
+
+    if (isAvailable) {
+      // Sending the message
+      const { result } = await SMS.sendSMSAsync(
+        [userData?.phoneNumber], // Recipient(s)
+        message // Message content
+      );
+      console.log("SMS Result:", result); // 'sent' or 'cancelled'
+    } else {
+      Alert.alert("SMS Not Available", "This device cannot send SMS.");
+    }
+  };
+
+  const makeCall = () => {
+    // Alert.alert(`Call Seller`, `Phone: ${userData.phoneNumber}`);
+    if (userData?.phoneNumber) {
+      const url = `tel:${userData?.phoneNumber}`;
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            Alert.alert("Error", "Phone call not supported on this device");
+          }
+        })
+        .catch((err) => console.error("Error opening URL:", err));
+    } else {
+      Alert.alert("Error", "Invalid phone number");
+    }
+  };
+  const phoneNumberWithoutCountryCode = userData?.phoneNumber; // Example phone number
+
+  const getFormattedPhoneNumber = (phoneNumber: string) => {
+    const phoneNumberWithCountryCode = parsePhoneNumberFromString(
+      phoneNumber,
+      "KE"
+    ); // KE is Kenya's country code
+    if (phoneNumberWithCountryCode) {
+      return phoneNumberWithCountryCode.format("E.164"); // Formats the number with the country code, e.g., +254790309409
+    }
+    return null;
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!message) {
+      Alert.alert("Error", "Message cannot be empty");
+      return;
+    }
+    const phoneNumber = getFormattedPhoneNumber(phoneNumberWithoutCountryCode);
+    if (phoneNumber) {
+      const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(
+        message
+      )}`;
+
+      // Open WhatsApp with the formatted phone number
+      Linking.openURL(url).catch(() => {
+        Alert.alert("Error", "Could not open WhatsApp.");
+      });
+    } else {
+      Alert.alert(
+        "Invalid phone number",
+        "The phone number could not be formatted."
+      );
+    }
+  };
   return (
     <GestureHandlerRootView
       style={[{ flex: 1 }, { backgroundColor: themeColors.background }]}
     >
       <BottomSheetModalProvider>
         <ParallaxScrollView
-          headerBackgroundColor={{ dark: "red", light: "red" }}
+          headerBackgroundColor={{ dark: "#eee", light: "#333" }}
           headerImage={renderImageSwiper()}
         >
           <View
@@ -358,79 +447,125 @@ const product = () => {
               }}
             >
               <Text className="text-white text-center font-semibold uppercase">
-                Contact Seller
+                Contact Seller {userData?.username}
               </Text>
             </Pressable>
             {renderLocationDetails()}
           </View>
         </ParallaxScrollView>
+
         <BottomSheetModal
           ref={contactModalRef}
           onChange={handleSheetChanges}
-          snapPoints={["50%", "90%"]}
-         
+          containerStyle={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          backgroundStyle={{ backgroundColor: themeColors.background }}
+          snapPoints={snapPoints}
         >
-          <BottomSheetView  style={{
-            backgroundColor: "#f1f1f1",
-            padding: 20,
-            borderRadius: 10,
-          }}>
-            <View style={{ padding: 20 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  marginBottom: 15,
-                  color:"#333",
-                }}
-              >
-                Contact Seller
-              </Text>
+          <KeyboardAwareScrollView
+            style={{ backgroundColor: themeColors.background }}
+            scrollEnabled={true}
+          >
+            <BottomSheetView
+              style={{
+                backgroundColor: "#a1a1a1",
+                padding: 20,
+                borderRadius: 10,
+              }}
+            >
+              <View style={{ padding: 20 }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    marginBottom: 15,
+                    color: "#333",
+                  }}
+                >
+                  Contact Seller {userData?.username}
+                </Text>
 
-              {/* Message Seller Option */}
-              <TouchableOpacity
-                onPress={() => Alert.alert("Message Seller")}
-                style={[
-                  styles.contactOption,
-                  { backgroundColor: themeColors.cardBg },
-                ]}
-              >
-                <Ionicons
-                  name="chatbubbles"
-                  size={24}
-                  color={themeColors.tint}
-                  style={{ marginRight: 10 }}
+                {/* Message Seller Option */}
+                <TextInput
+                  // value={message}
+                  onChange={(e) => setMessage(e.nativeEvent.text)}
+                  placeholder="Type your whatsapp message or SMS here..."
+                  style={{
+                    backgroundColor: themeColors.text,
+                    padding: 10,
+                    borderRadius: 8,
+                    marginBottom: 10,
+                    color: themeColors.icon,
+                  }}
                 />
-                <Text style={{ color: themeColors.text }}>Message</Text>
-              </TouchableOpacity>
+                <View className="flex-row">
+                  <TouchableOpacity
+                    onPress={() => handleSendWhatsApp()}
+                    style={[
+                      styles.contactOption,
+                      { backgroundColor: themeColors.cardBg, flex: 1 },
+                    ]}
+                  >
+                    <FontAwesome5
+                      name="whatsapp"
+                      size={24}
+                      color={themeColors.tint}
+                      style={{ marginRight: 10 }}
+                    />
+                    <Text style={{ color: themeColors.text }}>WhatsApp</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => sendSMS()}
+                    style={[
+                      styles.contactOption,
+                      {
+                        backgroundColor: themeColors.cardBg,
+                        flex: 1,
+                        marginLeft: 10,
+                      },
+                    ]}
+                  >
+                    <FontAwesome5
+                      name="sms"
+                      size={24}
+                      color={themeColors.tint}
+                      style={{ marginRight: 10 }}
+                    />
+                    <Text style={{ color: themeColors.text }}>Send SMS</Text>
+                  </TouchableOpacity>
+                </View>
 
-              {/* Call Seller Option */}
-              <TouchableOpacity
-                onPress={() =>
-                  Alert.alert(`Call Seller`, `Phone: ${userData.phoneNumber}`)
-                }
-                style={[
-                  styles.contactOption,
-                  { backgroundColor: themeColors.cardBg },
-                ]}
-              >
-                <Ionicons
-                  name="call"
-                  size={24}
-                  color={themeColors.tint}
-                  style={{ marginRight: 10 }}
-                />
-                <Text style={{ color: themeColors.text }}>Call</Text>
-              </TouchableOpacity>
-            </View>
-          </BottomSheetView>
+                {/* Call Seller Option */}
+                <TouchableOpacity
+                  onPress={() => {
+                    makeCall();
+                  }}
+                  style={[
+                    styles.contactOption,
+                    { backgroundColor: themeColors.cardBg },
+                  ]}
+                >
+                  <Ionicons
+                    name="call"
+                    size={24}
+                    color={themeColors.tint}
+                    style={{ marginRight: 10 }}
+                  />
+                  <Text style={{ color: themeColors.text }}>
+                    Call : {userData.phoneNumber}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </BottomSheetView>
+          </KeyboardAwareScrollView>
         </BottomSheetModal>
 
         {locationData && (
           <BottomSheetModal
             ref={bottomSheetModalRef}
             onChange={handleSheetChanges}
-            snapPoints={["50%", "90%"]}
+            containerStyle={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+            backgroundStyle={{ backgroundColor: themeColors.background }}
+            snapPoints={snapPoints}
           >
             <BottomSheetView style={styles.mapContainer}>
               <MapView
@@ -505,32 +640,27 @@ const styles = StyleSheet.create({
   },
   images: {
     width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    height: 300, // Define the height for consistent display
+    resizeMode: "cover", // Ensure images maintain aspect ratio
   },
   imagePlaceholder: {
     width: "100%",
     height: 300,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "tomato", // Placeholder background
-  },
-  contactButton: {
-    marginTop: 20,
-    padding: 15,
+    backgroundColor: "#f0f0f0",
     borderRadius: 10,
-    alignItems: "center",
   },
   contactOption: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 1,
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });

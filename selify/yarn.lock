@@ -3688,6 +3688,11 @@ expo-secure-store@^14.0.0:
   resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-14.0.0.tgz#cf6eb7f73e619f8907d5a073e2f438927b5fc2ab"
   integrity sha512-VyhtRFXP+7hQmHhKlHIOWid1Q/IRpM7Uif32tZHLZHvQ6FNz2cUkr26XWGvCa7btYbrR6OL++FBFZYjbIcRZTw==
 
+expo-sms@~13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/expo-sms/-/expo-sms-13.0.0.tgz#a12cb22a8941ee76855e7dfa0db8216e5b5c822a"
+  integrity sha512-I0RLE+dBahEcz/gXGlaILnxTxbZxu5Kk1q9VZnPsSehZ0Qvb4v7RoyTz9oghboEWv4dZsgGUHLP+9fdbrj7kFA==
+
 expo-splash-screen@~0.29.13:
   version "0.29.13"
   resolved "https://registry.yarnpkg.com/expo-splash-screen/-/expo-splash-screen-0.29.13.tgz#2a9083cdb4f7d3e5e4427b625a5249eaae71de7a"
@@ -5165,6 +5170,11 @@ leven@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/leven/-/leven-3.1.0.tgz#77891de834064cccba82ae7842bb6b14a13ed7f2"
   integrity sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==
+
+libphonenumber-js@^1.11.16:
+  version "1.11.16"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.11.16.tgz#3aa64a8a95ffc59253a5df3009940a9604a02102"
+  integrity sha512-Noyazmt0yOvnG0OeRY45Cd1ur8G7Z0HWVkuCuKe+yysGNxPQwBAODBQQ40j0AIagi9ZWurfmmZWNlpg4h4W+XQ==
 
 lighthouse-logger@^1.0.0:
   version "1.4.2"
