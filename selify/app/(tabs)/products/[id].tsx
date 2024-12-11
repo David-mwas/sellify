@@ -490,7 +490,7 @@ const product = () => {
                   onChange={(e) => setMessage(e.nativeEvent.text)}
                   placeholder="Type your whatsapp message or SMS here..."
                   style={{
-                    backgroundColor: themeColors.text,
+                    backgroundColor: "#f2f2f2",
                     padding: 10,
                     borderRadius: 8,
                     marginBottom: 10,
