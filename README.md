@@ -13,9 +13,7 @@ Selify is a platform designed to help users declutter their lives by selling unu
 <img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/mpn7yipkc0rmfj3ei0rf.jpg" width="250"/>
 
 <img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/wxntgwwtbtuujcvxu99r.jpg" width="250"/>
-<img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/
-h9v6uy8srow2dvzvgyyj
-.jpg" width="250"/>
+<img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/h9v6uy8srow2dvzvgyyj.jpg" width="250"/>
 <img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/xp8i8hu9bxvl6srxsnpg.jpg" width="250"/>
 
 <img src="https://res.cloudinary.com/dlio7cpjo/image/upload/v1733928269/selifyapp/tkpojor09mxtppltaopo.jpg" width="250"/>
