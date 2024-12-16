@@ -24,6 +24,11 @@ export default function Modals() {
           title: "user details",
         }}
       />
+      <Stack.Screen
+        name="message"
+        options={{
+          title: "message",
+        }}/>
     </Stack>
   );
 }

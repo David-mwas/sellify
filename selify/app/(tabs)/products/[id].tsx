@@ -26,7 +26,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import ParallaxScrollView from "../../../app-example/components/ParallaxScrollView";
 
@@ -93,6 +93,7 @@ const product = () => {
   const loc = location ? JSON.parse(location) : null;
 
   const [listings, setListings] = useState<any[] | null>(null);
+  console.log("seller", userData._id);
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -145,7 +146,7 @@ const product = () => {
     console.log("handleSheetChanges", index);
   }, []);
 
-  const snapPoints = useMemo(() => ["50%", "90%"], []);
+  const snapPoints = useMemo(() => ["60%", "90%"], []);
 
   const renderLocationDetails = () => {
     if (!locationData)
@@ -483,6 +484,40 @@ const product = () => {
                 >
                   Contact Seller {userData?.username}
                 </Text>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    router.navigate({
+                      pathname: `/(modals)/message`,
+                      params: { sellerId: userData._id },
+                    });
+                  }}
+                  style={[
+                    styles.contactOption,
+                    { backgroundColor: themeColors.cardBg, marginBottom: 40 },
+                  ]}
+                >
+                  <Ionicons
+                    name="chatbox"
+                    size={24}
+                    color={themeColors.tint}
+                    style={{ marginRight: 10 }}
+                  />
+                  <Text style={{ color: themeColors.text, flex: 1 }}>
+                    Message seller(DM)
+                  </Text>
+                  <View
+                    style={{
+                      alignSelf: "flex-end",
+                    }}
+                  >
+                    <Entypo
+                      name="chevron-right"
+                      size={24}
+                      color={themeColors.text}
+                    />
+                  </View>
+                </TouchableOpacity>
 
                 {/* Message Seller Option */}
                 <TextInput

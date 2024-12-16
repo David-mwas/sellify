@@ -8,6 +8,6 @@ messageRouter.post("/messages/send", verifyAccessToken, sendMessage);
 
 // GET: Get messages between two users
 //Query Parameters: ?sender=<userId>&receiver=<userId></userId>
-messageRouter.get("/messages", verifyAccessToken, getMessages);
+// messageRouter.get("/messages", verifyAccessToken, getMessages);
 
 exports.messageRouter = messageRouter;
