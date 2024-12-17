@@ -46,7 +46,7 @@ const ChatScreen: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           const sentMessage: IMessage = {
-            _id: data?.id,
+            _id: data?.id || message._id,
             text: message?.text,
             createdAt: new Date(),
             user: {
@@ -71,14 +71,18 @@ const ChatScreen: React.FC = () => {
         const formattedMessages: IMessage[] = firebaseMessages?.map(
           (msg: any) => ({
             _id: msg?.id,
-            text: msg?.message,
-            createdAt: msg?.timestamp.toDate(),
+            text: msg?.message || "", // Fallback for missing text
+            createdAt: msg?.timestamp?.toDate() || new Date(), // Ensure a valid Date
             user: {
-              _id: msg?.sender,
-              name: msg?.sender === userProfile?._id ? "You" : msg?.sender, // Customize as needed
+              _id: msg?.sender || "unknown", // Fallback for missing sender
+              name:
+                msg?.sender === userProfile?._id
+                  ? "You"
+                  : msg?.sender || "unknown",
             },
           })
         );
+
         setMessages(formattedMessages?.reverse()); // GiftedChat expects the newest message first
       }
     );
@@ -91,10 +95,11 @@ const ChatScreen: React.FC = () => {
       messages={messages}
       onSend={(newMessages) => handleSend(newMessages)}
       user={{
-        _id: userProfile?._id || "",
+        _id: userProfile?._id || "unknown",
         name: userProfile?.username || "You",
       }}
       isTyping={isLoading}
+      renderAvatarOnTop={true} // Optional: Improves appearance
     />
   );
 };
