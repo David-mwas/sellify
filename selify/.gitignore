@@ -38,3 +38,6 @@ yarn-error.*
 app-example
 application-91b1d-firebase-adminsdk-6a7nf-218701fc31.json
 google-services.json
+selify\firebase.js
+firebase.js
+*firebase.js

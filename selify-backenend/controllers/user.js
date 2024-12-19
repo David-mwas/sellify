@@ -15,6 +15,11 @@ exports.userProfile = async (req, res, next) => {
   return res.status(200).json({ userProfile: user });
 };
 
+exports.getUserById = async (req, res, next) => {
+  const user = await userModel.findById(req.params.id);
+
+  return res.status(200).json({ user });
+};
 exports.editProfile = async (req, res, next) => {
   console.log("Edit profile");
   try {

@@ -12,17 +12,28 @@ exports.sendMessage = async (req, res) => {
       message,
       sender,
       receiver,
+      participants: [sender, receiver], // Added for easier querying
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    // Save to Firestore under a chat document
-    const chatId = [sender, receiver].sort().join("_"); // Unique chat ID for two users
+    const chatData = {
+      chatId: [sender, receiver].sort().join("_"),
+      participants: [sender, receiver],
+      lastMessage: message,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
     const db = admin.firestore();
-    await db
-      .collection("sellifychats")
-      .doc(chatId)
-      .collection("messages")
-      .add(messageData);
+
+    // Use the chatId as the document ID to ensure uniqueness
+    const chatId = chatData.chatId;
+    const chatRef = db.collection("sellifychats").doc(chatId);
+
+    // Set or update the chat data
+    await chatRef.set(chatData, { merge: true });
+
+    // Add the message to the "messages" subcollection
+    await chatRef.collection("messages").add(messageData);
 
     res.status(201).json({ message: "Message sent", data: messageData });
   } catch (error) {

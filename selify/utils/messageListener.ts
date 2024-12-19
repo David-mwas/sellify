@@ -1,8 +1,12 @@
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 
-const listenForMessages = (chatId: string, setMessages: any) => {
-  console.log("chatId loaded", chatId);
+const listenForMessages = (
+  chatId: string,
+  setIsLoadingChat: any,
+  setMessages: any
+) => {
+  setIsLoadingChat(true);
   const q = query(
     collection(db, "sellifychats", chatId, "messages"),
     orderBy("timestamp", "asc")
@@ -15,6 +19,7 @@ const listenForMessages = (chatId: string, setMessages: any) => {
     }));
     console.log("messo", messages);
     setMessages(messages);
+    setIsLoadingChat(false);
   });
 
   return unsubscribe; // Call this to stop listening

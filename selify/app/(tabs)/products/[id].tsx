@@ -42,6 +42,7 @@ import { apiUrl } from "@/constants/api";
 import Swiper from "react-native-swiper";
 import * as SMS from "expo-sms";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useUserContext } from "@/contexts/userContext";
 
 const product = () => {
   const [message, setMessage] = useState("");
@@ -94,6 +95,8 @@ const product = () => {
 
   const [listings, setListings] = useState<any[] | null>(null);
   console.log("seller", userData._id);
+
+  const { userProfile } = useUserContext();
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -438,19 +441,35 @@ const product = () => {
                 />
               </View>
             </TouchableOpacity>
-            <Pressable
-              onPress={() => handleContactModalPress()}
-              style={{
-                backgroundColor: themeColors.tint,
-                borderRadius: 30,
-                padding: 14,
-                marginTop: 10,
-              }}
-            >
-              <Text className="text-white text-center font-semibold uppercase">
-                Contact Seller {userData?.username}
-              </Text>
-            </Pressable>
+            {userData?._id === userProfile?._id ? (
+              <Pressable
+                onPress={() => router.navigate("/(modals)/messagelist")}
+                style={{
+                  backgroundColor: themeColors.tint,
+                  borderRadius: 30,
+                  padding: 14,
+                  marginTop: 10,
+                }}
+              >
+                <Text className="text-white text-center font-semibold uppercase">
+                  View your messages
+                </Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => handleContactModalPress()}
+                style={{
+                  backgroundColor: themeColors.tint,
+                  borderRadius: 30,
+                  padding: 14,
+                  marginTop: 10,
+                }}
+              >
+                <Text className="text-white text-center font-semibold uppercase">
+                  Contact Seller {userData?.username}
+                </Text>
+              </Pressable>
+            )}
             {renderLocationDetails()}
           </View>
         </ParallaxScrollView>
