@@ -12,6 +12,7 @@ import {
   Text,
   StyleSheet,
   Image,
+  ScrollView,
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons"; // For icons
 import { ImageBackground } from "react-native";
@@ -23,6 +24,8 @@ import { useSearchParams } from "expo-router/build/hooks";
 import listenForMessages from "../../utils/messageListener"; // Helper to listen to Firebase
 
 import { Colors } from "@/constants/Colors";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Keyboard } from "react-native";
 
 // Define the ChatScreen Component
 const ChatScreen: React.FC = () => {
@@ -117,8 +120,12 @@ const ChatScreen: React.FC = () => {
   // Custom Send Button
   const renderSend = (props: any) => (
     <TouchableOpacity
-      style={[styles.sendButton, { backgroundColor: themeColors.tint }]}
+      style={[
+        styles.sendButton,
+        { backgroundColor: props.text ? themeColors.tint : "#ccc" },
+      ]}
       onPress={() => {
+        Keyboard.dismiss();
         if (props.text && props.onSend) {
           props.onSend({ text: props.text.trim() }, true);
         }
@@ -155,11 +162,12 @@ const ChatScreen: React.FC = () => {
       {...props}
       containerStyle={{
         backgroundColor: isDarkMode ? "#222" : "#f2f2f2",
-        borderTopWidth: 1,
-        borderTopColor: "#ccc",
+        borderWidth: 1,
+        borderColor: "#ccc",
         borderRadius: 30,
         marginHorizontal: 10,
-        marginBottom: 5,
+        marginBottom: 6,
+        marginTop: 6,
       }}
     />
   );
@@ -174,21 +182,23 @@ const ChatScreen: React.FC = () => {
           style={{ marginTop: 20 }}
         />
       ) : (
-        <GiftedChat
-          messages={messages}
-          onSend={(newMessages) => handleSend(newMessages)}
-          user={{
-            _id: userProfile?._id || "unknown",
-            name: userProfile?.username || "You",
-          }}
-          renderSend={renderSend}
-          renderBubble={renderBubble}
-          renderInputToolbar={renderInputToolbar}
-          placeholder="Type your message here..."
-          isTyping={isLoading}
-          alwaysShowSend
-          renderAvatarOnTop
-        />
+        <>
+          <GiftedChat
+            messages={messages}
+            onSend={(newMessages) => handleSend(newMessages)}
+            user={{
+              _id: userProfile?._id || "unknown",
+              name: userProfile?.username || "You",
+            }}
+            renderSend={renderSend}
+            renderBubble={renderBubble}
+            renderInputToolbar={renderInputToolbar}
+            placeholder="Type your message here..."
+            isTyping={isLoading}
+            alwaysShowSend
+            renderAvatarOnTop
+          />
+        </>
       )}
     </>
   );

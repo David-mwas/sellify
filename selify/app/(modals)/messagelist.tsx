@@ -11,6 +11,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase"; // Your Firebase config file
 import { useUserContext } from "@/contexts/userContext";
 import { apiUrl } from "@/constants/api";
+import { router } from "expo-router";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -41,7 +42,6 @@ const ChatList = () => {
     const response = await fetch(`${apiUrl}/user/${sellerId}`);
     const data = await response.json();
     setUser(data?.user);
-   
   };
 
   const renderChatItem = ({ item }) => {
@@ -52,9 +52,11 @@ const ChatList = () => {
     return (
       <TouchableOpacity
         style={styles.chatItemContainer}
-        onPress={
-          () => {}
-          // navigation.navigate("ChatDetails", { chatId: item.id, userId })
+        onPress={() =>
+          router.navigate({
+            pathname: `/(modals)/message`,
+            params: { sellerId: otherUserId },
+          })
         }
       >
         <Image
