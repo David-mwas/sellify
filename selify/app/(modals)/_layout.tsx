@@ -28,7 +28,14 @@ export default function Modals() {
         name="message"
         options={{
           title: "message",
-        }}/>
+        }}
+      />
+      <Stack.Screen
+        name="messagelist"
+        options={{
+          title: "Chat List",
+        }}
+      />
     </Stack>
   );
 }

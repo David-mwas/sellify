@@ -1,4 +1,5 @@
 const admin = require("../firebase");
+const { userModel } = require("../models/userModel");
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -8,20 +9,37 @@ exports.sendMessage = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    const senderName = await userModel.findById(sender);
+    const receiverName = await userModel.findById(receiver);
+    if (!senderName || !receiverName) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const messageData = {
       message,
       sender,
       receiver,
+      senderName: senderName?.username,
+      receiverName: receiverName?.username,
       participants: [sender, receiver], // Added for easier querying
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const chatData = {
+    let chatData = {
       chatId: [sender, receiver].sort().join("_"),
       participants: [sender, receiver],
+      senderName: senderName?.username,
+      receiverName: receiverName?.username,
+      senderImage: senderName?.imageUrl?.url,
+      receiverImage: receiverName?.imageUrl?.url,
       lastMessage: message,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     };
+
+    // Remove undefined fields from chatData
+    chatData = Object.fromEntries(
+      Object.entries(chatData).filter(([_, value]) => value !== undefined)
+    );
 
     const db = admin.firestore();
 

@@ -13,6 +13,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons"; // For icons
 import { ImageBackground } from "react-native";
@@ -24,7 +25,7 @@ import { useSearchParams } from "expo-router/build/hooks";
 import listenForMessages from "../../utils/messageListener"; // Helper to listen to Firebase
 
 import { Colors } from "@/constants/Colors";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
 import { Keyboard } from "react-native";
 
 // Define the ChatScreen Component
@@ -88,29 +89,55 @@ const ChatScreen: React.FC = () => {
       }
     }
   };
+  interface User {
+    _id: string;
+    username: string;
+    imageUrl: { url: string };
+  }
 
   // Listen for messages in real-time
   useEffect(() => {
     const unsubscribe: () => void = listenForMessages(
       chatId,
-      setIsLoadingChat,
-      (firebaseMessages: any[]) => {
-        const formattedMessages: IMessage[] = firebaseMessages?.map(
-          (msg: any) => ({
-            _id: msg?.id,
-            text: msg?.message || "",
-            createdAt: msg?.timestamp?.toDate() || new Date(),
-            user: {
-              _id: msg?.sender || "unknown",
-              name:
-                msg?.sender === userProfile?._id
-                  ? "You"
-                  : msg?.sender || "unknown",
-            },
-          })
-        );
+      // setIsLoadingChat,
+      async (firebaseMessages: any[]) => {
+        interface FirebaseMessage {
+          id: string;
+          message: string;
+          senderName: string;
+          timestamp: {
+            toDate: () => Date;
+          };
+          sender: string;
+        }
 
-        setMessages(formattedMessages?.reverse());
+        interface FirebaseMessage {
+          id: string;
+          message: string;
+          timestamp: {
+            toDate: () => Date;
+          };
+          sender: string;
+        }
+
+        const formatMessages = (
+          firebaseMessages: FirebaseMessage[]
+        ): IMessage[] => {
+          return firebaseMessages.map(
+            (msg: FirebaseMessage): IMessage => ({
+              _id: msg?.id,
+              text: msg?.message || "",
+              createdAt: msg?.timestamp?.toDate() || new Date(),
+              user: {
+                _id: msg?.sender || "unknown",
+                name: msg?.senderName,
+              },
+            })
+          );
+        };
+
+        const formattedMessages = await formatMessages(firebaseMessages);
+        setMessages(formattedMessages.reverse());
       }
     );
 
@@ -160,14 +187,19 @@ const ChatScreen: React.FC = () => {
   const renderInputToolbar = (props: any) => (
     <InputToolbar
       {...props}
+      wrapperStyle={{ backgroundColor: "red" }}
       containerStyle={{
+        // flex: 1,
+
         backgroundColor: isDarkMode ? "#222" : "#f2f2f2",
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 30,
-        marginHorizontal: 10,
-        marginBottom: 6,
-        marginTop: 6,
+        // borderWidth: 1,
+        // borderColor: "#ccc",
+        // borderRadius: 10,
+        // marginHorizontal: 10,
+        // marginBottom: 6,
+        // marginTop: 6,
+        padding: 5,
+        paddingTop: 10,
       }}
     />
   );
@@ -176,14 +208,30 @@ const ChatScreen: React.FC = () => {
   return (
     <>
       {isLoadingChat ? (
-        <ActivityIndicator
-          size="large"
-          color={themeColors.tint}
-          style={{ marginTop: 20 }}
-        />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: themeColors.background,
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color={themeColors.tint}
+            style={{ marginTop: 20 }}
+          />
+        </View>
       ) : (
         <>
           <GiftedChat
+            messagesContainerStyle={{
+              backgroundColor: themeColors.background,
+              paddingBottom: 10,
+            }}
+            quickReplyContainerStyle={{
+              backgroundColor: themeColors.background,
+            }}
             messages={messages}
             onSend={(newMessages) => handleSend(newMessages)}
             user={{
@@ -196,7 +244,21 @@ const ChatScreen: React.FC = () => {
             placeholder="Type your message here..."
             isTyping={isLoading}
             alwaysShowSend
-            renderAvatarOnTop
+            // renderAvatarOnTop
+
+            renderChatFooter={() => (
+              <View
+                style={{
+                  backgroundColor: themeColors.background,
+                  padding: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: themeColors.text }}>
+                  Chat with the seller
+                </Text>
+              </View>
+            )}
           />
         </>
       )}

@@ -3,10 +3,10 @@ import { db } from "../firebase";
 
 const listenForMessages = (
   chatId: string,
-  setIsLoadingChat: any,
+  // setIsLoadingChat: any,
   setMessages: any
 ) => {
-  setIsLoadingChat(true);
+  // setIsLoadingChat(true);
   const q = query(
     collection(db, "sellifychats", chatId, "messages"),
     orderBy("timestamp", "asc")
@@ -19,7 +19,7 @@ const listenForMessages = (
     }));
     console.log("messo", messages);
     setMessages(messages);
-    setIsLoadingChat(false);
+    // setIsLoadingChat(false);
   });
 
   return unsubscribe; // Call this to stop listening

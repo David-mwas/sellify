@@ -33,10 +33,10 @@ const ProfilePage = () => {
   const user: UserProfile = JSON.parse(userdata as string);
   const authContext = useContext(AuthContext);
   const userToken = authContext?.userToken;
-  const [username, setUsername] = useState(user.username);
-  const [email, setEmail] = useState(user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber);
-  const [imageUrl, setImageUrl] = useState(user.imageUrl);
+  const [username, setUsername] = useState(user?.username);
+  const [email, setEmail] = useState(user?.email);
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber);
+  const [imageUrl, setImageUrl] = useState(user?.imageUrl);
   const [isLoading, setIsLoading] = useState(false);
 
   const themeContext = useContext(ThemeContext); // Access the theme context
@@ -120,7 +120,7 @@ const ProfilePage = () => {
     >
       <Stack.Screen
         options={{
-          title: `Hello ${user.username}`,
+          title: `Hello ${user?.username}`,
           headerShown: true,
           headerTitleAlign: "center",
         }}

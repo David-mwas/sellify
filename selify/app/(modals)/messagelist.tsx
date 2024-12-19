@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -12,12 +12,35 @@ import { db } from "../../firebase"; // Your Firebase config file
 import { useUserContext } from "@/contexts/userContext";
 import { apiUrl } from "@/constants/api";
 import { router } from "expo-router";
+import { ThemeContext } from "@/contexts/ThemeContext";
+import { Colors } from "@/constants/Colors";
+import LottieView from "lottie-react-native";
 
 const ChatList = () => {
-  const [chats, setChats] = useState([]);
-  const [user, setUser] = useState(null);
+  interface ChatItem {
+    id: string;
+    participants: string[];
+    lastMessage: string;
+    timestamp: { seconds: number };
+    senderName: string;
+    receiverName: string;
+    senderImage: string;
+    receiverImage: string;
+  }
+
+  const [chats, setChats] = useState<ChatItem[]>([]);
+  interface User {
+    _id: string;
+    username: string;
+    imageUrl: { url: string };
+  }
+
   const { userProfile } = useUserContext();
   const userId = userProfile?._id;
+
+  const themeContext = useContext(ThemeContext); // Access the theme context
+  const isDarkMode = themeContext?.isDarkMode || false; // Get current theme
+  const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -28,30 +51,59 @@ const ChatList = () => {
       );
 
       const chatSnapshot = await getDocs(q);
-      const chatData = chatSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const chatData = chatSnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          participants: data.participants,
+          senderName: data.senderName,
+          receiverName: data.receiverName,
+          senderImage: data.senderImage,
+          receiverImage: data.receiverImage,
+          lastMessage: data.lastMessage,
+          timestamp: data.timestamp,
+        };
+      });
       setChats(chatData);
     };
 
     fetchChats();
   }, [userId]);
 
-  const fetchSeller = async (sellerId) => {
-    const response = await fetch(`${apiUrl}/user/${sellerId}`);
-    const data = await response.json();
-    setUser(data?.user);
-  };
+  interface SellerResponse {
+    user: User;
+  }
 
-  const renderChatItem = ({ item }) => {
+  interface ChatItem {
+    id: string;
+    participants: string[];
+    lastMessage: string;
+    timestamp: { seconds: number };
+  }
+
+  const renderChatItem = ({ item }: { item: ChatItem }) => {
     const otherUserId = item.participants.find((id) => id !== userId);
-    fetchSeller(otherUserId);
-    // console.log(user);
+    // console.log("otherUserId", item);
+    // console.log(
+    //   "user",
+    //   otherUserId === userId ? item?.receiverImage : item?.senderImage
+    // );
 
     return (
       <TouchableOpacity
-        style={styles.chatItemContainer}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: themeColors.cardBg,
+          padding: 10,
+          borderRadius: 10,
+          marginVertical: 5,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          elevation: 1,
+        }}
         onPress={() =>
           router.navigate({
             pathname: `/(modals)/message`,
@@ -61,14 +113,31 @@ const ChatList = () => {
       >
         <Image
           source={{
-            uri: user?.profilePicture
-              ? user?.profilePicture
-              : `https://ui-avatars.com/api/?name=${user?.username}&background=random`,
+            uri:
+              otherUserId === userId
+                ? item?.receiverImage
+                : item?.senderImage
+                ? otherUserId === userId
+                  ? item?.receiverImage
+                  : item?.senderImage
+                : `https://ui-avatars.com/api/?name=${
+                    otherUserId === userId
+                      ? item?.receiverName
+                      : item?.senderName
+                  }&background=random`,
           }}
           style={styles.avatar}
         />
         <View style={styles.chatDetailsContainer}>
-          <Text style={styles.chatName}>{user?.username}</Text>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              color: themeColors.text,
+            }}
+          >
+            {otherUserId === userId ? item?.receiverName : item?.senderName}
+          </Text>
           <Text style={styles.lastMessage}>{item.lastMessage}</Text>
         </View>
         <Text style={styles.timestamp}>
@@ -79,13 +148,44 @@ const ChatList = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={chats}
-        keyExtractor={(item) => item.id}
-        renderItem={renderChatItem}
-        contentContainerStyle={styles.chatList}
-      />
+    <View
+      style={{ flex: 1, backgroundColor: themeColors.background, padding: 10 }}
+    >
+      {chats.length > 0 ? (
+        <FlatList
+          data={chats}
+          keyExtractor={(item) => item.id}
+          renderItem={renderChatItem}
+          contentContainerStyle={{
+            paddingBottom: 10,
+          }}
+        />
+      ) : (
+        <View className="justify-center items-center">
+          <LottieView
+            autoPlay
+            style={{
+              width: 200,
+              height: 200,
+              backgroundColor: "transparent",
+              marginTop: 20,
+            }}
+            // Find more Lottie files at
+            source={require("../../assets/lottie/Animation - 1732533924789.json")}
+          />
+          <Text
+            style={{
+              color: themeColors.text,
+              textAlign: "center",
+              marginTop: 20,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            you have no chats yet !
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -93,11 +193,6 @@ const ChatList = () => {
 export default ChatList;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-    padding: 10,
-  },
   header: {
     fontSize: 24,
     fontWeight: "bold",
@@ -105,22 +200,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#333",
   },
-  chatList: {
-    paddingBottom: 10,
-  },
-  chatItemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 1,
-  },
+
   avatar: {
     width: 50,
     height: 50,
@@ -130,11 +210,7 @@ const styles = StyleSheet.create({
   chatDetailsContainer: {
     flex: 1,
   },
-  chatName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
+
   lastMessage: {
     fontSize: 14,
     color: "#888",
