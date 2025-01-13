@@ -14,6 +14,7 @@ import {
   Image,
   ScrollView,
   TouchableWithoutFeedback,
+  FlatList,
 } from "react-native";
 import { FontAwesome, Ionicons } from "@expo/vector-icons"; // For icons
 import { ImageBackground } from "react-native";
@@ -27,6 +28,7 @@ import listenForMessages from "../../utils/messageListener"; // Helper to listen
 import { Colors } from "@/constants/Colors";
 
 import { Keyboard } from "react-native";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 // Define the ChatScreen Component
 const ChatScreen: React.FC = () => {
@@ -95,52 +97,27 @@ const ChatScreen: React.FC = () => {
     imageUrl: { url: string };
   }
 
-  // Listen for messages in real-time
+  // Format messages from Firestore
+  const formatMessages = (firebaseMessages: any[]) =>
+    firebaseMessages.map((msg) => ({
+      _id: msg.id,
+      text: msg.message,
+      createdAt: msg.timestamp.toDate(),
+      user: {
+        _id: msg.sender,
+        name: msg.senderName,
+      },
+    }));
+
+  // Message listener (real-time updates)
   useEffect(() => {
     const unsubscribe: () => void = listenForMessages(
       chatId,
-      // setIsLoadingChat,
-      async (firebaseMessages: any[]) => {
-        interface FirebaseMessage {
-          id: string;
-          message: string;
-          senderName: string;
-          timestamp: {
-            toDate: () => Date;
-          };
-          sender: string;
-        }
-
-        interface FirebaseMessage {
-          id: string;
-          message: string;
-          timestamp: {
-            toDate: () => Date;
-          };
-          sender: string;
-        }
-
-        const formatMessages = (
-          firebaseMessages: FirebaseMessage[]
-        ): IMessage[] => {
-          return firebaseMessages.map(
-            (msg: FirebaseMessage): IMessage => ({
-              _id: msg?.id,
-              text: msg?.message || "",
-              createdAt: msg?.timestamp?.toDate() || new Date(),
-              user: {
-                _id: msg?.sender || "unknown",
-                name: msg?.senderName,
-              },
-            })
-          );
-        };
-
-        const formattedMessages = await formatMessages(firebaseMessages);
-        setMessages(formattedMessages.reverse());
+      setIsLoadingChat,
+      (data: any[]) => {
+        setMessages(formatMessages(data).reverse());
       }
     );
-
     return () => unsubscribe();
   }, [chatId]);
 
@@ -189,38 +166,24 @@ const ChatScreen: React.FC = () => {
       {...props}
       wrapperStyle={{ backgroundColor: "red" }}
       containerStyle={{
-        // flex: 1,
-
         backgroundColor: isDarkMode ? "#222" : "#f2f2f2",
-        // borderWidth: 1,
-        // borderColor: "#ccc",
-        // borderRadius: 10,
-        // marginHorizontal: 10,
-        // marginBottom: 6,
-        // marginTop: 6,
+
         padding: 5,
         paddingTop: 10,
       }}
     />
   );
 
-  // Chat Background
   return (
     <>
       {isLoadingChat ? (
         <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: themeColors.background,
-          }}
+          style={[
+            styles.container,
+            { backgroundColor: themeColors.background },
+          ]}
         >
-          <ActivityIndicator
-            size="large"
-            color={themeColors.tint}
-            style={{ marginTop: 20 }}
-          />
+          <ActivityIndicator size="large" color={themeColors.tint} />
         </View>
       ) : (
         <>
@@ -268,6 +231,11 @@ const ChatScreen: React.FC = () => {
 
 // Styles
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   sendButton: {
     padding: 8,
     borderRadius: 20,

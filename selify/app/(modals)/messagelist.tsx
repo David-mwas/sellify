@@ -15,6 +15,8 @@ import { router } from "expo-router";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import LottieView from "lottie-react-native";
+import { ActivityIndicator } from "react-native";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 const ChatList = () => {
   interface ChatItem {
@@ -29,6 +31,9 @@ const ChatList = () => {
   }
 
   const [chats, setChats] = useState<ChatItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const shimmerItems = new Array(5).fill(null);
   interface User {
     _id: string;
     username: string;
@@ -44,6 +49,7 @@ const ChatList = () => {
 
   useEffect(() => {
     const fetchChats = async () => {
+      setIsLoading(true);
       const chatRef = collection(db, "sellifychats");
       const q = query(
         chatRef,
@@ -65,6 +71,7 @@ const ChatList = () => {
         };
       });
       setChats(chatData);
+      setIsLoading(false);
     };
 
     fetchChats();
@@ -151,7 +158,69 @@ const ChatList = () => {
     <View
       style={{ flex: 1, backgroundColor: themeColors.background, padding: 10 }}
     >
-      {chats.length > 0 ? (
+      {isLoading ? (
+        <View style={{ flex: 1, paddingVertical: 20 }}>
+          {shimmerItems.map((_, index) => (
+            <View
+              key={index}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 15,
+                backgroundColor: themeColors.cardBg,
+                padding: 10,
+                borderRadius: 10,
+              }}
+            >
+              {/* Avatar shimmer */}
+              <ShimmerPlaceholder
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  marginRight: 10,
+                }}
+                shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+              />
+
+              {/* Text shimmer */}
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                }}
+              >
+                <View>
+                  <ShimmerPlaceholder
+                    style={{
+                      height: 20,
+                      width: "70%",
+                      borderRadius: 4,
+                      marginBottom: 8,
+                    }}
+                    shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                  />
+                  <ShimmerPlaceholder
+                    style={{ height: 16, width: "40%", borderRadius: 4 }}
+                    shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                  />
+                </View>
+                <View style={{ flex: 1, alignItems: "flex-end" }}>
+                  <ShimmerPlaceholder
+                    style={{
+                      height: 12,
+                      width: "100%",
+                      borderRadius: 4,
+                      // marginLeft: -15,
+                    }}
+                    shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
+                  />
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : chats?.length > 0 ? (
         <FlatList
           data={chats}
           keyExtractor={(item) => item.id}
@@ -170,7 +239,6 @@ const ChatList = () => {
               backgroundColor: "transparent",
               marginTop: 20,
             }}
-            // Find more Lottie files at
             source={require("../../assets/lottie/Animation - 1732533924789.json")}
           />
           <Text

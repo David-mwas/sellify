@@ -16,6 +16,7 @@ import { Link } from "expo-router";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Colors } from "@/constants/Colors";
 import { useUserContext } from "@/contexts/userContext";
+import { router } from "expo-router";
 
 export interface UserProfile {
   location: Location;
@@ -127,7 +128,10 @@ function Account() {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.row]}>
+      <TouchableOpacity
+        style={[styles.row]}
+        onPress={() => router.navigate("/(modals)/messagelist")}
+      >
         <Ionicons
           name="chatbubble-ellipses-outline"
           size={24}

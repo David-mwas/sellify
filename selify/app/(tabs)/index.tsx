@@ -12,7 +12,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Link } from "expo-router";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import { apiUrl } from "@/constants/api";
@@ -295,57 +295,96 @@ function Index() {
         />
       ) : (
         categories && (
-          <FlashList
-            ref={categoryRef}
-            contentContainerStyle={{ padding: 2 }}
-            showsHorizontalScrollIndicator={false}
-            data={categories}
-            horizontal
-            keyExtractor={(item) => item._id}
-            extraData={selected} // Ensure re-render on state change
-            renderItem={({ item, index }) => (
-              <Pressable
-                onPress={() => {
-                  pressed(item._id);
-                  // handleFetchProductsByCategory(item._id);
-                  scrollCategory(index);
-                }}
-                key={item._id}
+          <View className="flex-row items-center justify-between">
+            <Pressable
+              onPress={() => {
+                handleFetchProducts();
+              }}
+              style={{
+                marginHorizontal: 2,
+                backgroundColor: themeColors.icon,
+                borderRadius: 10,
+                padding: 10,
+              }}
+            >
+              <Animated.View
                 style={{
-                  marginHorizontal: 2,
-                  backgroundColor:
-                    selected === item._id ? themeColors.tint : themeColors.icon,
-                  borderRadius: 10,
-                  padding: 10,
+                  opacity: animatedCategoryOpacity,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Animated.View
+                <Text style={{ fontSize: 20, textAlign: "center" }}>
+                  <Ionicons name="refresh-circle" size={24} color="white" />
+                </Text>
+                <Text
                   style={{
-                    opacity:
-                      selected === item._id ? animatedCategoryOpacity : 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    fontSize: 16,
+                    textTransform: "capitalize",
+                    color: "white",
+                    marginLeft: 8,
+                    textAlign: "center",
                   }}
                 >
-                  <Text style={{ fontSize: 20, textAlign: "center" }}>
-                    {item.emoji}
-                  </Text>
-                  <Text
+                  All
+                </Text>
+              </Animated.View>
+            </Pressable>
+            <FlashList
+              ref={categoryRef}
+              contentContainerStyle={{ padding: 2 }}
+              showsHorizontalScrollIndicator={false}
+              data={categories}
+              horizontal
+              keyExtractor={(item) => item._id}
+              extraData={selected} // Ensure re-render on state change
+              renderItem={({ item, index }) => (
+                <Pressable
+                  onPress={() => {
+                    pressed(item._id);
+                    // handleFetchProductsByCategory(item._id);
+                    scrollCategory(index);
+                  }}
+                  key={item._id}
+                  style={{
+                    marginHorizontal: 2,
+                    backgroundColor:
+                      selected === item._id
+                        ? themeColors.tint
+                        : themeColors.icon,
+                    borderRadius: 10,
+                    padding: 10,
+                  }}
+                >
+                  <Animated.View
                     style={{
-                      fontSize: 16,
-                      textTransform: "capitalize",
-                      color: "white",
-                      marginLeft: 8,
-                      textAlign: "center",
+                      opacity:
+                        selected === item._id ? animatedCategoryOpacity : 1,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {item.name}
-                  </Text>
-                </Animated.View>
-              </Pressable>
-            )}
-          />
+                    <Text style={{ fontSize: 20, textAlign: "center" }}>
+                      {item.emoji}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        textTransform: "capitalize",
+                        color: "white",
+                        marginLeft: 8,
+                        textAlign: "center",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                  </Animated.View>
+                </Pressable>
+              )}
+            />
+          </View>
         )
       )}
 

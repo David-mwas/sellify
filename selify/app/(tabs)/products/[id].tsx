@@ -94,7 +94,7 @@ const product = () => {
   const loc = location ? JSON.parse(location) : null;
 
   const [listings, setListings] = useState<any[] | null>(null);
-  console.log("seller", userData._id);
+  // console.log("seller", userData._id);
 
   const { userProfile } = useUserContext();
 
