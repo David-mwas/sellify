@@ -4,10 +4,14 @@ import { OnboardingProvider } from "@/contexts/OnBoardingContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import "../global.css";
 import { UserProvider } from "@/contexts/userContext";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
     <AuthProvider>
+       <QueryClientProvider client={queryClient}>
       <UserProvider>
         <OnboardingProvider>
           <ThemeProvider>
@@ -21,6 +25,7 @@ export default function Layout() {
           </ThemeProvider>
         </OnboardingProvider>
       </UserProvider>
+       </QueryClientProvider>
     </AuthProvider>
   );
 }

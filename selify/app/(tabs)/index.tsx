@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import {
   Text,
   View,
@@ -19,9 +19,9 @@ import { apiUrl } from "@/constants/api";
 import { BlurView } from "expo-blur";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useUserContext } from "@/contexts/userContext";
-
 import LottieView from "lottie-react-native";
 import NetInfo from "@react-native-community/netinfo";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const { width } = Dimensions.get("window");
 
@@ -31,25 +31,33 @@ type Category = {
   emoji: string;
 };
 
-function Index() {
-  const [products, setProducts] = useState<any[]>([]);
+const fetchCategories = async () => {
+  const response = await fetch(`${apiUrl}/category`);
+  if (!response.ok) throw new Error("Error fetching categories");
+  return response.json();
+};
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const [categories, setCategories] = useState<Category[]>([]);
+type Product = {
+  _id: string;
+  title: string;
+  price: number;
+  images: { url: string }[];
+  location: string;
+  userId: string;
+};
+
+function Index() {
   const [selected, setSelected] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [products, setProducts] = useState<Product[] | null>(null);
 
   const categoryRef = useRef<FlashList<Category> | null>(null);
 
   const authContext = useContext(AuthContext);
-
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-
-  const { userProfile, isLoading: loading, error } = useUserContext();
+  const { userProfile } = useUserContext();
 
   if (!authContext || !themeContext) {
     throw new Error("Contexts not found");
@@ -60,7 +68,22 @@ function Index() {
     console.log("Is connected?", state.isConnected);
   });
 
-  const { userToken } = authContext;
+  const fetchProducts = async (): Promise<{ products: Product[] }> => {
+    const response = await fetch(`${apiUrl}/products`);
+    if (!response.ok) throw new Error("Error fetching products");
+    const data = await response.json();
+    setProducts(data.products);
+    return data;
+  };
+
+  const fetchProductsByCategory = async (id: string) => {
+    const response = await fetch(`${apiUrl}/products/category/${id}`);
+    if (!response.ok) throw new Error("Error fetching products by category");
+    const data = await response.json();
+    console.log(data.products);
+    setProducts(data.products);
+    return data.products;
+  };
 
   const animatedCategoryOpacity = useRef(new Animated.Value(1)).current;
   const shimmerScale = useRef(new Animated.Value(1)).current;
@@ -88,9 +111,6 @@ function Index() {
         useNativeDriver: true,
       }),
     ]).start();
-
-    // Fetch products by category
-    handleFetchProductsByCategory(id);
   };
 
   const animateShimmer = () => {
@@ -110,67 +130,26 @@ function Index() {
     ).start();
   };
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    setIsLoadingCategories(true);
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+  const {
+    data: product,
+    isLoading: isLoadingProducts,
+    refetch: refetchProducts,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+  const queryClient = useQueryClient();
 
-    try {
-      const [categoriesResponse, productsResponse] = await Promise.all([
-        fetch(`${apiUrl}/category`),
-        fetch(`${apiUrl}/products`),
-      ]);
-
-      if (categoriesResponse.ok) {
-        const categoryData = await categoriesResponse.json();
-        setCategories(categoryData.categories);
-      }
-
-      if (productsResponse.ok) {
-        const productData = await productsResponse.json();
-        setProducts(productData.products);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-      setIsLoadingCategories(false);
-    }
-  };
-
-  const handleFetchProducts = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${apiUrl}/products`);
-      if (response.ok) {
-        setIsLoading(false);
-        const data = await response.json();
-        setProducts(data.products);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error fetching products:", error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
   const handleFetchProductsByCategory = async (id: string) => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`${apiUrl}/products/category/${id}`);
-      if (response.ok) {
-        setIsLoading(false);
-        const data = await response.json();
-        setProducts(data.products);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error fetching products:", error);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
+    await queryClient.prefetchQuery({
+      queryKey: ["products", id],
+      queryFn: () => fetchProductsByCategory(id),
+    });
+    setSelected(id);
   };
 
   useEffect(() => {
@@ -178,7 +157,6 @@ function Index() {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
-    fetchData();
     animateShimmer();
 
     return () => unsubscribe();
@@ -298,7 +276,7 @@ function Index() {
           <View className="flex-row items-center justify-between">
             <Pressable
               onPress={() => {
-                handleFetchProducts();
+                refetchProducts();
               }}
               style={{
                 marginHorizontal: 2,
@@ -335,7 +313,7 @@ function Index() {
               ref={categoryRef}
               contentContainerStyle={{ padding: 2 }}
               showsHorizontalScrollIndicator={false}
-              data={categories}
+              data={categories.categories}
               horizontal
               keyExtractor={(item) => item._id}
               extraData={selected} // Ensure re-render on state change
@@ -343,7 +321,7 @@ function Index() {
                 <Pressable
                   onPress={() => {
                     pressed(item._id);
-                    // handleFetchProductsByCategory(item._id);
+                    handleFetchProductsByCategory(item._id);
                     scrollCategory(index);
                   }}
                   key={item._id}
@@ -388,7 +366,7 @@ function Index() {
         )
       )}
 
-      {isLoading ? (
+      {isLoadingProducts ? (
         <View style={styles.productsContainer}>
           {[...Array(10)].map((_, index) => (
             <View key={index} style={styles.productShimmer}>
@@ -411,7 +389,7 @@ function Index() {
         </View>
       ) : (
         <>
-          {products.length === 0 ? (
+          {products && products?.length === 0 ? (
             <View className="justify-center items-center">
               <LottieView
                 autoPlay
@@ -497,10 +475,9 @@ function Index() {
               showsVerticalScrollIndicator={false}
               onRefresh={() => {
                 setSelected(null);
-                setIsRefreshing(true);
-                handleFetchProducts();
+                refetchProducts();
               }}
-              refreshing={isRefreshing}
+              refreshing={isLoadingProducts}
             />
           )}
         </>
