@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
-import Toast from "react-native-toast-message";
+
 import {
   Text,
   View,
@@ -55,7 +55,11 @@ function Index() {
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const { userProfile, refetchUser,isLoading:isLoadingUser } = useUserContext();
+  const {
+    userProfile,
+    refetchUser,
+    isLoading: isLoadingUser,
+  } = useUserContext();
 
   if (!authContext || !themeContext) {
     throw new Error("Contexts not found");
@@ -164,11 +168,7 @@ function Index() {
       setIsConnected(state.isConnected);
       if (state.isConnected) {
         // Refetch data when online
-        Toast.show({
-          type: "success",
-          text1: "Online",
-          text2: "Fetching the latest data...",
-        });
+
         console.log("Refetching data as the app is back online");
         refetchUser(); // Refetch user profile
         refetchProducts(); // Refetch products
@@ -220,8 +220,6 @@ function Index() {
               style={styles.shimmerCircle}
               shimmerColors={["#E0E0E0", "#F0F0F0", "#E0E0E0"]}
             />
-
-           
           </View>
         ) : (
           <View className="flex-col">
