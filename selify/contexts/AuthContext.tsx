@@ -4,7 +4,6 @@ import { Alert, ToastAndroid } from "react-native";
 import { router } from "expo-router";
 import { LocationObject } from "@/constants/types";
 import { apiUrl } from "@/constants/api";
-import Toast from "react-native-toast-message";
 
 interface AuthContextType {
   userToken: string | null;
