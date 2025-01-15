@@ -10,12 +10,10 @@ import {
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase"; // Your Firebase config file
 import { useUserContext } from "@/contexts/userContext";
-import { apiUrl } from "@/constants/api";
 import { router } from "expo-router";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Colors } from "@/constants/Colors";
 import LottieView from "lottie-react-native";
-import { ActivityIndicator } from "react-native";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 const ChatList = () => {
@@ -77,10 +75,6 @@ const ChatList = () => {
     fetchChats();
   }, [userId]);
 
-  interface SellerResponse {
-    user: User;
-  }
-
   interface ChatItem {
     id: string;
     participants: string[];
@@ -90,12 +84,7 @@ const ChatList = () => {
 
   const renderChatItem = ({ item }: { item: ChatItem }) => {
     const otherUserId = item.participants.find((id) => id !== userId);
-    // console.log("otherUserId", item);
-    // console.log(
-    //   "user",
-    //   otherUserId === userId ? item?.receiverImage : item?.senderImage
-    // );
-
+    
     return (
       <TouchableOpacity
         style={{

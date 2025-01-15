@@ -9,14 +9,13 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView,
   Platform,
   Image,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import Modal from "react-native-modal";
 import { Feather, Ionicons } from "@expo/vector-icons"; // Use Ionicons from @expo/vector-icons
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
 import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom colors based on themes
@@ -35,12 +34,8 @@ export default function register() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  const { location, errorMsg, isLocationLoading } = useLocation();
-  const {
-    pushToken,
-    errorMsg: error,
-    isLoading: loading,
-  } = usePushNotificationToken();
+  const { location, errorMsg } = useLocation();
+  const { pushToken, errorMsg: error } = usePushNotificationToken();
 
   // Get AuthContext and check if it's defined
   const authContext = useContext(AuthContext);
@@ -52,7 +47,7 @@ export default function register() {
 
   const { register, isLoading } = authContext;
   const { isDarkMode } = themeContext;
-  // console.log("pushToken", pushToken);
+
   const LocationObject: LocationObject = {
     latitude: location?.coords.latitude ?? 0,
     longitude: location?.coords.longitude ?? 0,
@@ -60,10 +55,7 @@ export default function register() {
   if (error || errorMsg) {
     Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
   }
-  // if (!pushToken || !location) {
-  //   console.log("Push token or location not found");
-  //   return;
-  // }
+
   const handleSubmit = () => {
     Keyboard.dismiss();
     if (!username || !email || !password || !confirmPassword) {
@@ -155,12 +147,6 @@ export default function register() {
                 top: 2,
               }}
             />
-            {/* <Text
-              style={{ color: textColor }}
-              className="font-extrabold text-xl uppercase text-center mb-4"
-            >
-              Register To Fololimo
-            </Text> */}
 
             {/* Username input with icon */}
             <View

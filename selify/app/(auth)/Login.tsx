@@ -100,12 +100,6 @@ export default function Login() {
                 top: 2,
               }}
             />
-            {/* <Text
-              style={{ color: textColor }}
-              className="font-extrabold text-xl uppercase text-center mb-2"
-            >
-              Login To Selify
-            </Text> */}
 
             {/* Email input with icon */}
             <Text className="font-bold" style={{ color: textColor }}>

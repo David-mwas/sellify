@@ -16,9 +16,9 @@ import {
   Alert,
   Linking,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+// import MapView, { Marker } from "react-native-maps";
 import { Easing } from "react-native-reanimated";
-import parsePhoneNumber, {
+import {
   parsePhoneNumberFromString,
 } from "libphonenumber-js";
 import {
@@ -142,9 +142,9 @@ const product = () => {
   const contactModalRef = useRef<BottomSheetModal>(null);
 
   // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
+  // const handlePresentModalPress = useCallback(() => {
+  //   bottomSheetModalRef.current?.present();
+  // }, []);
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
   }, []);
@@ -182,7 +182,7 @@ const product = () => {
         <Text style={[styles.locationItem, { color: themeColors.text }]}>
           {display_name || "N/A"}
         </Text>
-        <Pressable
+        {/* <Pressable
           onPress={handlePresentModalPress}
           style={[styles.mapButton, { backgroundColor: themeColors.icon }]}
         >
@@ -190,7 +190,7 @@ const product = () => {
             <FontAwesome5 name="map-marked-alt" size={24} color="white" />
             <Text style={styles.mapButton}>View On Map</Text>
           </View>
-        </Pressable>
+        </Pressable> */}
       </View>
     );
   };
@@ -613,7 +613,7 @@ const product = () => {
           </KeyboardAwareScrollView>
         </BottomSheetModal>
 
-        {locationData && (
+        {/* {locationData && (
           <BottomSheetModal
             ref={bottomSheetModalRef}
             onChange={handleSheetChanges}
@@ -642,7 +642,7 @@ const product = () => {
               </MapView>
             </BottomSheetView>
           </BottomSheetModal>
-        )}
+        )} */}
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );

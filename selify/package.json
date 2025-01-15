@@ -66,6 +66,7 @@
     "react-native-screens": "^4.3.0",
     "react-native-shimmer-placeholder": "^2.0.9",
     "react-native-swiper": "^1.6.0",
+    "react-native-toast-message": "^2.2.1",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.2",
     "react-navigation": "^5.0.0"

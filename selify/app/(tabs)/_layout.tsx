@@ -1,13 +1,6 @@
-import { useContext, useEffect } from "react";
-import { router, Tabs } from "expo-router";
-import {
-  View,
-  ActivityIndicator,
-  StatusBar,
-  StyleSheet,
-  Text,
-  SafeAreaView,
-} from "react-native";
+import { useContext } from "react";
+import { Tabs } from "expo-router";
+import { View, ActivityIndicator, StatusBar, SafeAreaView } from "react-native";
 import { AuthContext } from "@/contexts/AuthContext"; // For user authentication
 import { OnboardingContext } from "@/contexts/OnBoardingContext"; // For onboarding status
 import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
@@ -49,7 +42,6 @@ export default function TabLayout() {
     ? Colors.dark.headerText
     : Colors.light.headerText;
   // Get current theme
-  const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
   if (isAuthLoading) {
     return (

@@ -11,13 +11,8 @@ import {
   ActivityIndicator,
   Text,
   StyleSheet,
-  Image,
-  ScrollView,
-  TouchableWithoutFeedback,
-  FlatList,
 } from "react-native";
-import { FontAwesome, Ionicons } from "@expo/vector-icons"; // For icons
-import { ImageBackground } from "react-native";
+import { FontAwesome } from "@expo/vector-icons"; // For icons
 import { apiUrl } from "@/constants/api";
 import { AuthContext } from "@/contexts/AuthContext";
 import { ThemeContext } from "@/contexts/ThemeContext";
@@ -28,7 +23,6 @@ import listenForMessages from "../../utils/messageListener"; // Helper to listen
 import { Colors } from "@/constants/Colors";
 
 import { Keyboard } from "react-native";
-import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 // Define the ChatScreen Component
 const ChatScreen: React.FC = () => {
@@ -91,11 +85,6 @@ const ChatScreen: React.FC = () => {
       }
     }
   };
-  interface User {
-    _id: string;
-    username: string;
-    imageUrl: { url: string };
-  }
 
   // Format messages from Firestore
   const formatMessages = (firebaseMessages: any[]) =>

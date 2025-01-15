@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from "react";
-import { SafeAreaView, Image, StyleSheet, Alert } from "react-native";
-import Onboarding from "react-native-onboarding-swiper";
+import React, { useContext} from "react";
+import { SafeAreaView, Image, StyleSheet} from "react-native";
 import { OnboardingContext } from "@/contexts/OnBoardingContext";
 import { router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
 import Login from "./Login";
 import { StatusBar } from "expo-status-bar";
+import Onboarding from "react-native-onboarding-swiper";
 
 const OnBoarding = () => {
   const authContext = useContext(AuthContext);
@@ -16,7 +16,7 @@ const OnBoarding = () => {
       "AuthContext and OnboardingContext must be used within their providers"
     );
   }
-  const { userToken, isLoading: isAuthLoading } = authContext;
+  const { userToken } = authContext;
   const { isOnboardingCompleted, completeOnboarding } = onboardingContext;
 
   if (isOnboardingCompleted && !userToken) {
@@ -25,7 +25,6 @@ const OnBoarding = () => {
 
   const handleComplete = async () => {
     await completeOnboarding();
-    // Alert.alert("Onboarding Complete", "Redirecting to login...");
     router.replace("/(auth)/Login");
   };
 

@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, { useContext } from "react";
 import { Stack } from "expo-router/stack";
 import { ThemeContext } from "@/contexts/ThemeContext"; // Import ThemeContext

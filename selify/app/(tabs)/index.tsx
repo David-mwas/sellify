@@ -1,10 +1,10 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
+import Toast from "react-native-toast-message";
 import {
   Text,
   View,
   Image,
   SafeAreaView,
-  Dimensions,
   StyleSheet,
   Pressable,
   Animated,
@@ -22,8 +22,6 @@ import { useUserContext } from "@/contexts/userContext";
 import LottieView from "lottie-react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-const { width } = Dimensions.get("window");
 
 type Category = {
   name: string;
@@ -57,7 +55,7 @@ function Index() {
   const themeContext = useContext(ThemeContext);
   const isDarkMode = themeContext?.isDarkMode || false;
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
-  const { userProfile } = useUserContext();
+  const { userProfile, refetchUser,isLoading:isLoadingUser } = useUserContext();
 
   if (!authContext || !themeContext) {
     throw new Error("Contexts not found");
@@ -130,7 +128,11 @@ function Index() {
     ).start();
   };
 
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+  const {
+    data: categories,
+    isLoading: isLoadingCategories,
+    refetch: refetchCategories,
+  } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
@@ -153,14 +155,34 @@ function Index() {
   };
 
   useEffect(() => {
-    // Subscribe to network state updates
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsConnected(state.isConnected);
-    });
-    animateShimmer();
+    // Function to handle network change
+    interface NetworkState {
+      isConnected: boolean | null;
+    }
 
+    const handleNetworkChange = (state: NetworkState) => {
+      setIsConnected(state.isConnected);
+      if (state.isConnected) {
+        // Refetch data when online
+        Toast.show({
+          type: "success",
+          text1: "Online",
+          text2: "Fetching the latest data...",
+        });
+        console.log("Refetching data as the app is back online");
+        refetchUser(); // Refetch user profile
+        refetchProducts(); // Refetch products
+        refetchCategories();
+      }
+    };
+
+    animateShimmer();
+    // Subscribe to network state updates
+    const unsubscribe = NetInfo.addEventListener(handleNetworkChange);
+
+    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
+  }, [refetchProducts, queryClient]);
 
   const renderNetworkStatus = () => {
     if (isConnected === false) {
@@ -191,55 +213,67 @@ function Index() {
           source={require("@/assets/images/selify.png")}
           style={styles.logo}
         />
-        <View className="flex-col">
-          {userProfile?.imageUrl ? (
-            <View>
-              <Image
-                source={{ uri: userProfile?.imageUrl?.url }}
-                className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  shadowColor: themeColors.tint,
-                  shadowOffset: { width: 0, height: 10 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  borderColor: themeColors.tint,
-                  borderWidth: 1,
-                }}
-              />
-              {isConnected && (
-                <View
+        {isLoadingUser ? (
+          <View className="flex-row items-center">
+            {/* Shimmer for Profile Image */}
+            <ShimmerPlaceholder
+              style={styles.shimmerCircle}
+              shimmerColors={["#E0E0E0", "#F0F0F0", "#E0E0E0"]}
+            />
+
+           
+          </View>
+        ) : (
+          <View className="flex-col">
+            {userProfile?.imageUrl ? (
+              <View>
+                <Image
+                  source={{ uri: userProfile?.imageUrl?.url }}
+                  className="w-[3rem] h-[3rem] object-contain rounded-full mr-2"
                   style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: 12,
-                    height: 12,
-                    backgroundColor: "green",
-                    borderRadius: 50,
-                    borderWidth: 2,
-                    borderColor: "white",
+                    width: 50,
+                    height: 50,
+                    borderRadius: 25,
+                    shadowColor: themeColors.tint,
+                    shadowOffset: { width: 0, height: 10 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    borderColor: themeColors.tint,
+                    borderWidth: 1,
                   }}
                 />
-              )}
-            </View>
-          ) : (
-            <Text
-              className="p-4 rounded-full items-center flex justify-center text-center text-white font-extrabold  mr-2 w-[50px] h-[50px]"
-              style={{
-                color: "#eee",
-                backgroundColor: "#999",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-              }}
-            >
-              {userProfile?.username.slice(0, 2)}
-            </Text>
-          )}
-        </View>
+                {isConnected && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: 12,
+                      height: 12,
+                      backgroundColor: "green",
+                      borderRadius: 50,
+                      borderWidth: 2,
+                      borderColor: "white",
+                    }}
+                  />
+                )}
+              </View>
+            ) : (
+              <Text
+                className="p-4 rounded-full items-center flex justify-center text-center text-white font-extrabold  mr-2 w-[50px] h-[50px]"
+                style={{
+                  color: "#eee",
+                  backgroundColor: "#999",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                }}
+              >
+                {userProfile?.username.slice(0, 2)}
+              </Text>
+            )}
+          </View>
+        )}
       </View>
       {isLoadingCategories ? (
         <FlashList
@@ -276,6 +310,7 @@ function Index() {
           <View className="flex-row items-center justify-between">
             <Pressable
               onPress={() => {
+                refetchUser();
                 refetchProducts();
               }}
               style={{
@@ -496,6 +531,12 @@ const styles = StyleSheet.create({
     width: 100,
     height: 80,
     resizeMode: "contain",
+  },
+  shimmerCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
   },
   shimmerContainer: {
     flexDirection: "row",
