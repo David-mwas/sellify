@@ -308,7 +308,7 @@ function Index() {
           <View className="flex-row items-center justify-between">
             <Pressable
               onPress={() => {
-                fetchedUserProfile();
+                // fetchedUserProfile();
                 refetchProducts();
               }}
               style={{

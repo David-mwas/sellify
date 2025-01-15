@@ -75,16 +75,13 @@ const ChatList = () => {
     fetchChats();
   }, [userId]);
 
-  interface ChatItem {
-    id: string;
-    participants: string[];
-    lastMessage: string;
-    timestamp: { seconds: number };
-  }
-
   const renderChatItem = ({ item }: { item: ChatItem }) => {
+    // Find the other participant in the chat
     const otherUserId = item.participants.find((id) => id !== userId);
-    
+    const isUserSender = item.senderName === userProfile?.username; // Assuming userProfile.username holds the logged-in user's name
+    const otherUserName = isUserSender ? item.receiverName : item.senderName;
+    const otherUserImage = isUserSender ? item.receiverImage : item.senderImage;
+
     return (
       <TouchableOpacity
         style={{
@@ -109,18 +106,9 @@ const ChatList = () => {
       >
         <Image
           source={{
-            uri:
-              otherUserId === userId
-                ? item?.receiverImage
-                : item?.senderImage
-                ? otherUserId === userId
-                  ? item?.receiverImage
-                  : item?.senderImage
-                : `https://ui-avatars.com/api/?name=${
-                    otherUserId === userId
-                      ? item?.receiverName
-                      : item?.senderName
-                  }&background=random`,
+            uri: otherUserImage
+              ? otherUserImage
+              : `https://ui-avatars.com/api/?name=${otherUserName}&background=random`,
           }}
           style={styles.avatar}
         />
@@ -132,7 +120,7 @@ const ChatList = () => {
               color: themeColors.text,
             }}
           >
-            {otherUserId === userId ? item?.receiverName : item?.senderName}
+            {otherUserName}
           </Text>
           <Text style={styles.lastMessage}>{item.lastMessage}</Text>
         </View>
@@ -200,7 +188,6 @@ const ChatList = () => {
                       height: 12,
                       width: "100%",
                       borderRadius: 4,
-                      // marginLeft: -15,
                     }}
                     shimmerColors={["#f0f0f0", "#e0e0e0", "#f0f0f0"]}
                   />

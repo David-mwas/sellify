@@ -18,9 +18,7 @@ import {
 } from "react-native";
 // import MapView, { Marker } from "react-native-maps";
 import { Easing } from "react-native-reanimated";
-import {
-  parsePhoneNumberFromString,
-} from "libphonenumber-js";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -61,13 +59,16 @@ const product = () => {
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
 
   interface LocationData {
-    lat: string;
-    lon: string;
+    latitude: number;
+    longitude: number;
     display_name: string;
     name?: string;
   }
   interface UserData {
-    location: Location;
+    location: {
+      latitude: number;
+      longitude: number;
+    };
     _id: string;
     username: string;
     email: string;
@@ -91,7 +92,7 @@ const product = () => {
 
   const productImage = images ? JSON.parse(images) : [];
 
-  const loc = location ? JSON.parse(location) : null;
+  const loc = userData?.location || { latitude: 0, longitude: 0 };
 
   const [listings, setListings] = useState<any[] | null>(null);
   // console.log("seller", userData._id);
@@ -112,13 +113,14 @@ const product = () => {
           { method: "GET", headers: headersList }
         );
         const data = await res.json();
+        // console.log("Location data", data);
         setLocationData(data);
       } catch (error) {
         console.log("Error " + error);
       }
     };
     fetchLocation();
-  }, []);
+  }, [loc?.latitude, loc?.longitude]);
 
   useEffect(() => {
     const fetchUserListings = async () => {

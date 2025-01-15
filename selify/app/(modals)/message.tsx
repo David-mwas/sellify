@@ -194,7 +194,7 @@ const ChatScreen: React.FC = () => {
             renderBubble={renderBubble}
             renderInputToolbar={renderInputToolbar}
             placeholder="Type your message here..."
-            isTyping={isLoading}
+            // isTyping={isLoading}
             alwaysShowSend
             // renderAvatarOnTop
 
