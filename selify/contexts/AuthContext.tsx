@@ -1,9 +1,10 @@
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import * as SecureStore from "expo-secure-store";
-import { Alert } from "react-native";
+import { Alert, ToastAndroid } from "react-native";
 import { router } from "expo-router";
 import { LocationObject } from "@/constants/types";
 import { apiUrl } from "@/constants/api";
+import Toast from "react-native-toast-message";
 
 interface AuthContextType {
   userToken: string | null;
@@ -16,8 +17,8 @@ interface AuthContextType {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject,
-    pushToken: string
+    location: LocationObject
+    // pushToken: string
   ) => Promise<void>;
 }
 
@@ -88,7 +89,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         router.replace("/(tabs)");
         setIsLoading(false);
-        Alert.alert("Login Successful", "You are now logged in");
+        ToastAndroid.show("Login Successful", ToastAndroid.SHORT);
+        // Alert.alert("Login Successful", "You are now logged in");
       }
       if (response.status === 401) {
         const data = await response.json();
@@ -119,8 +121,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject,
-    pushToken: string
+    location: LocationObject
+    // pushToken: string
   ) => {
     setIsLoading(true);
 
@@ -138,7 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           password: password1,
           confirm_password: password2,
           location: location,
-          expoPushToken: pushToken,
+          // expoPushToken: pushToken,
         }), // Send username and password
       });
 

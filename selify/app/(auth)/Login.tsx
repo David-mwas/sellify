@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
@@ -50,8 +49,9 @@ export default function Login() {
       setIsModalVisible(true);
       return;
     }
+     Keyboard.dismiss();
     login(Email, password);
-    Keyboard.dismiss();
+   
   };
 
   const handleOpen = () => {

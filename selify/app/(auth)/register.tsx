@@ -21,7 +21,7 @@ import { ThemeContext } from "@/contexts/ThemeContext"; // For theme management
 import { Colors } from "@/constants/Colors"; // Custom colors based on themes
 import { useLocation } from "@/hooks/useLocation";
 import { LocationObject } from "@/constants/types";
-import { usePushNotificationToken } from "@/hooks/useExpoPushToken";
+// import { usePushNotificationToken } from "@/hooks/useExpoPushToken";
 
 export default function register() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +35,7 @@ export default function register() {
   const [modalMessage, setModalMessage] = useState("");
 
   const { location, errorMsg } = useLocation();
-  const { pushToken, errorMsg: error } = usePushNotificationToken();
+  // const { pushToken, errorMsg: error } = usePushNotificationToken();
 
   // Get AuthContext and check if it's defined
   const authContext = useContext(AuthContext);
@@ -52,8 +52,11 @@ export default function register() {
     latitude: location?.coords.latitude ?? 0,
     longitude: location?.coords.longitude ?? 0,
   };
-  if (error || errorMsg) {
-    Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
+  // if (error || errorMsg) {
+  //   Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
+  // }
+  if (errorMsg) {
+    Alert.alert("Error", errorMsg);
   }
 
   const handleSubmit = () => {
@@ -98,8 +101,8 @@ export default function register() {
       phoneNumber,
       password,
       confirmPassword,
-      LocationObject,
-      pushToken!
+      LocationObject
+      // pushToken!
     );
   };
 
