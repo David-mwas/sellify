@@ -57,7 +57,7 @@ function Index() {
   const themeColors = isDarkMode ? Colors.dark : Colors.light;
   const {
     userProfile,
-    refetchUser,
+    fetchedUserProfile,
     isLoading: isLoadingUser,
   } = useUserContext();
 
@@ -66,8 +66,8 @@ function Index() {
   }
 
   NetInfo.fetch().then((state) => {
-    console.log("Connection type", state.type);
-    console.log("Is connected?", state.isConnected);
+    // console.log("Connection type", state.type);
+    // console.log("Is connected?", state.isConnected);
   });
 
   const fetchProducts = async (): Promise<{ products: Product[] }> => {
@@ -170,7 +170,7 @@ function Index() {
         // Refetch data when online
 
         console.log("Refetching data as the app is back online");
-        refetchUser(); // Refetch user profile
+        fetchedUserProfile(); // Refetch user profile
         refetchProducts(); // Refetch products
         refetchCategories();
       }
@@ -308,7 +308,7 @@ function Index() {
           <View className="flex-row items-center justify-between">
             <Pressable
               onPress={() => {
-                refetchUser();
+                fetchedUserProfile();
                 refetchProducts();
               }}
               style={{
