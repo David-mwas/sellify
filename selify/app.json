@@ -1,13 +1,18 @@
 {
   "expo": {
-    "name": "selify",
-    "slug": "selify",
-    "version": "1.0.1",
+    "name": "Selify",
+    "slug": "Selify",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "selify",
+    "scheme": "Selify",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -21,7 +26,7 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "googleServicesFile": "google-services.json",
-      "package": "com.davidmwas.selify"
+      "package": "com.davidmwas.Selify"
     },
     "web": {
       "bundler": "metro",

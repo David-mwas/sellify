@@ -193,9 +193,10 @@ function Index() {
             backgroundColor: "tomato",
             padding: 10,
             textAlign: "center",
+            borderRadius: 5,
           }}
         >
-          No Network Connected
+          Please check your internet connection
         </Text>
       );
     }

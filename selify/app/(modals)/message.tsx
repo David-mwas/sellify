@@ -153,10 +153,18 @@ const ChatScreen: React.FC = () => {
   const renderInputToolbar = (props: any) => (
     <InputToolbar
       {...props}
+      textInputProps={{
+        placeholderTextColor: isDarkMode ? "#fff" : "#000",
+        style: {
+          width: "85%",
+          color: isDarkMode ? "#fff" : "#000", // Set input text color here
+        },
+      }}
       wrapperStyle={{ backgroundColor: "red" }}
       containerStyle={{
+        width: "100%",
+        height: 60,
         backgroundColor: isDarkMode ? "#222" : "#f2f2f2",
-
         padding: 5,
         paddingTop: 10,
       }}
@@ -195,7 +203,7 @@ const ChatScreen: React.FC = () => {
             renderInputToolbar={renderInputToolbar}
             placeholder="Type your message here..."
             // isTyping={isLoading}
-            alwaysShowSend
+            alwaysShowSend={true}
             // renderAvatarOnTop
 
             renderChatFooter={() => (
@@ -211,6 +219,8 @@ const ChatScreen: React.FC = () => {
                 </Text>
               </View>
             )}
+            minInputToolbarHeight={50} // Ensures the input toolbar height remains consistent
+            keyboardShouldPersistTaps="handled" // Ensures the keyboard handles taps properly
           />
         </>
       )}
