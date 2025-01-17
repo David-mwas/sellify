@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Selify",
+    "name": "selify",
     "slug": "selify",
     "version": "1.0.2",
     "orientation": "portrait",
@@ -26,7 +26,7 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "googleServicesFile": "google-services.json",
-      "package": "com.davidmwas.Selify"
+      "package": "com.davidmwas.sellify"
     },
     "web": {
       "bundler": "metro",
