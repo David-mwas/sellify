@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Selify",
-    "slug": "Selify",
+    "slug": "selify",
     "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "Selify",
+    "scheme": "selify",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
