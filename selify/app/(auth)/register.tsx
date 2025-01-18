@@ -52,11 +52,8 @@ export default function register() {
     latitude: location?.coords.latitude ?? 0,
     longitude: location?.coords.longitude ?? 0,
   };
-  // if (error || errorMsg) {
-  //   Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
-  // }
-  if (errorMsg) {
-    Alert.alert("Error", errorMsg);
+  if (error || errorMsg) {
+    Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
   }
 
   const handleSubmit = () => {

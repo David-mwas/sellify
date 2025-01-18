@@ -47,7 +47,7 @@ export function usePushNotificationToken(): PushTokenHookReturn {
         }
       } catch (error) {
         console.error("Error fetching push token:", error);
-        setErrorMsg("An error occurred while fetching the push token");
+        setErrorMsg("An error occurred while fetching the push token " + error);
       } finally {
         setIsLoading(false);
       }
