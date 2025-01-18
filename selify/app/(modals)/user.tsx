@@ -120,7 +120,7 @@ const ProfilePage = () => {
     >
       <Stack.Screen
         options={{
-          title: `Hello ${user?.username}`,
+          title: `Hello ${user && user?.username}`,
           headerShown: true,
           headerTitleAlign: "center",
         }}

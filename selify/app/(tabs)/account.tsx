@@ -42,7 +42,7 @@ function Account() {
   }
 
   const { logout } = authContext;
-  const { userProfile, isLoading } = useUserContext();
+  const { userProfile, isLoading, error } = useUserContext();
 
   const [isNotificationsEnabled, setIsNotificationsEnabled] =
     React.useState(true);
@@ -103,7 +103,7 @@ function Account() {
               {userProfile?.username}
             </Text>
           )}
-          {isLoading ? (
+          {isLoading || error ? (
             <ShimmerPlaceholder
               style={{ width: 150, height: 20, marginTop: 4 }}
               shimmerColors={["#333", "#999", "#333"]}

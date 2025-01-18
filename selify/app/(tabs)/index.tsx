@@ -59,6 +59,7 @@ function Index() {
     userProfile,
     fetchedUserProfile,
     isLoading: isLoadingUser,
+    error: userError,
   } = useUserContext();
 
   if (!authContext || !themeContext) {
@@ -136,6 +137,7 @@ function Index() {
     data: categories,
     isLoading: isLoadingCategories,
     refetch: refetchCategories,
+    error: categoriesError,
   } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
@@ -144,6 +146,7 @@ function Index() {
     data: product,
     isLoading: isLoadingProducts,
     refetch: refetchProducts,
+    error: productsError,
   } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
@@ -193,7 +196,7 @@ function Index() {
             backgroundColor: "tomato",
             padding: 10,
             textAlign: "center",
-            borderRadius: 5,
+            borderRadius: 15,
           }}
         >
           Please check your internet connection
@@ -214,7 +217,7 @@ function Index() {
           source={require("@/assets/images/selify.png")}
           style={styles.logo}
         />
-        {isLoadingUser ? (
+        {isLoadingUser || userError ? (
           <View className="flex-row items-center">
             {/* Shimmer for Profile Image */}
             <ShimmerPlaceholder
@@ -274,7 +277,7 @@ function Index() {
           </View>
         )}
       </View>
-      {isLoadingCategories ? (
+      {isLoadingCategories ||categoriesError? (
         <FlashList
           data={Array(5).fill({})}
           horizontal
@@ -400,7 +403,7 @@ function Index() {
         )
       )}
 
-      {isLoadingProducts ? (
+      {isLoadingProducts||productsError ? (
         <View style={styles.productsContainer}>
           {[...Array(10)].map((_, index) => (
             <View key={index} style={styles.productShimmer}>

@@ -16,8 +16,8 @@ interface AuthContextType {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject
-    // pushToken: string
+    location: LocationObject,
+    pushToken: string
   ) => Promise<void>;
 }
 
@@ -120,8 +120,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     phoneNumber: string,
     password1: string,
     password2: string,
-    location: LocationObject
-    // pushToken: string
+    location: LocationObject,
+    pushToken: string
   ) => {
     setIsLoading(true);
 
@@ -139,7 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           password: password1,
           confirm_password: password2,
           location: location,
-          // expoPushToken: pushToken,
+          expoPushToken: pushToken,
         }), // Send username and password
       });
 
