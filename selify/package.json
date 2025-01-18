@@ -53,7 +53,6 @@
     "react-dom": "18.3.1",
     "react-native": "0.76.3",
     "react-native-animated-swiper": "^0.0.23",
-    "react-native-device-info": "^14.0.2",
     "react-native-dropdown-select-list": "^2.0.5",
     "react-native-gesture-handler": "^2.21.2",
     "react-native-get-random-values": "~1.11.0",
