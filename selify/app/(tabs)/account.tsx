@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,15 @@ import {
   Image,
   Switch,
 } from "react-native";
-
 import { AuthContext } from "../../contexts/AuthContext";
 import { ThemeContext } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { apiUrl } from "@/constants/api";
 import { Link } from "expo-router";
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 import { Colors } from "@/constants/Colors";
 import { useUserContext } from "@/contexts/userContext";
 import { router } from "expo-router";
+import Constants from "expo-constants";
 
 export interface UserProfile {
   location: Location;
@@ -55,6 +54,10 @@ function Account() {
     // Toggle between languages (example)
     setLanguage((prev) => (prev === "English" ? "Spanish" : "English"));
   };
+  const appVersion =
+    Constants.expoConfig?.version ||
+    Constants?.manifest2?.extra?.expoClient?.version ||
+    "Unknown";
   return (
     <View
       style={[styles.container, { backgroundColor: themeColors.background }]}
@@ -227,6 +230,49 @@ function Account() {
           Logout
         </Text>
       </TouchableOpacity>
+      <View
+        style={{
+          flex: 1,
+          marginTop: 20,
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}
+      >
+        <Link
+          href="https://github.com/David-mwas/sellify"
+          style={{
+            color: "#333",
+            textAlign: "center",
+            textDecorationLine: "underline",
+            textDecorationStyle: "solid",
+            textDecorationColor: "#555",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              color: "#555",
+              textAlign: "center",
+            }}
+          >
+            <Ionicons name="logo-github" size={20} color="#555" /> version: v
+            {appVersion}
+          </Text>
+        </Link>
+
+        <Text
+          style={{
+            fontSize: 18,
+            color: "#555",
+            textAlign: "center",
+            textDecorationLine: "underline",
+            textDecorationStyle: "solid",
+            textDecorationColor: "#555",
+          }}
+        >
+          <Link href="https://david-mwas.me"> Created by: DavidMwas</Link>
+        </Text>
+      </View>
     </View>
   );
 }
@@ -286,6 +332,16 @@ const styles = StyleSheet.create({
     marginTop: 30,
 
     paddingTop: 8,
+  },
+  appVersion: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  info: {
+    fontSize: 18,
+    color: "#333",
   },
 });
 

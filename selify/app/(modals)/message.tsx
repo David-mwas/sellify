@@ -249,7 +249,7 @@ const ChatScreen: React.FC = () => {
                 {item.messages.map((msg: any) => renderMessage({ item: msg }))}
               </>
             )}
-            keyExtractor={(item, index) => item.id}
+            keyExtractor={(item, index) => item.id + index.toString()}
             contentContainerStyle={styles.messagesContainer}
           />
           <View

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-
+import * as Device from "expo-device";
+import Constants from "expo-constants";
 type PushTokenHookReturn = {
   pushToken: string | null;
   errorMsg: string | null;
@@ -13,42 +14,65 @@ export function usePushNotificationToken(): PushTokenHookReturn {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  function handleRegistrationError(errorMessage: string) {
+    alert(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   useEffect(() => {
     async function registerForPushNotificationsAsync() {
       setIsLoading(true);
-      try {
-        // Check for permissions
-        const { status: existingStatus } =
-          await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
+      if (Device.isDevice) {
+        try {
+          // Check for permissions
+          const { status: existingStatus } =
+            await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
 
-        // Request permissions if not already granted
-        if (existingStatus !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
+          // Request permissions if not already granted
+          if (existingStatus !== "granted") {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
 
-        if (finalStatus !== "granted") {
-          setErrorMsg("Permission to receive notifications was denied");
-          setIsLoading(false);
-          return;
-        }
+          if (finalStatus !== "granted") {
+            setErrorMsg("Permission to receive notifications was denied");
+            setIsLoading(false);
+            return;
+          }
 
-        // Get the push token
-        const token = (await Notifications.getExpoPushTokenAsync()).data;
-        setPushToken(token);
+          const projectId =
+            Constants?.expoConfig?.extra?.eas?.projectId ??
+            Constants?.easConfig?.projectId;
+          if (!projectId) {
+            handleRegistrationError("Project ID not found");
+          }
 
-        // For Android: Set notification channel
-        if (Platform.OS === "android") {
-          Notifications.setNotificationChannelAsync("default", {
-            name: "default",
-            importance: Notifications.AndroidImportance.MAX,
+          // Get the push token
+          const { data: token } = await Notifications.getExpoPushTokenAsync({
+            projectId,
           });
+          if (token) {
+            setPushToken(token!);
+          }
+
+          // For Android: Set notification channel
+          if (Platform.OS === "android") {
+            Notifications.setNotificationChannelAsync("default", {
+              name: "default",
+              importance: Notifications.AndroidImportance.MAX,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching push token:", error);
+          setErrorMsg(
+            "An error occurred while fetching the push token " + error
+          );
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching push token:", error);
-        setErrorMsg("An error occurred while fetching the push token " + error);
-      } finally {
+      } else {
+        setErrorMsg("Must use physical device for Push Notifications");
         setIsLoading(false);
       }
     }

@@ -12,6 +12,7 @@ import {
   Platform,
   Image,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "@/contexts/AuthContext";
 import Modal from "react-native-modal";
@@ -49,9 +50,8 @@ export default function Login() {
       setIsModalVisible(true);
       return;
     }
-     Keyboard.dismiss();
+    Keyboard.dismiss();
     login(Email, password);
-   
   };
 
   const handleOpen = () => {
@@ -82,6 +82,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={{ backgroundColor }} className="flex-1">
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex justify-center items-center h-screen px-4 space-y-6 w-screen"
@@ -162,12 +163,14 @@ export default function Login() {
             </View>
 
             {/* Login button */}
-            <TouchableOpacity
-              className="bg-[#c58343cc] rounded-lg w-full px-4 py-4"
-              onPress={handleLogin}
-            >
-              <Text className="text-white text-center font-bold">Login</Text>
-            </TouchableOpacity>
+            <View className="w-full flex flex-row justify-center items-center ">
+              <TouchableOpacity
+                className="bg-[#c58343cc] rounded-lg w-full px-4 py-4"
+                onPress={handleLogin}
+              >
+                <Text className="text-white text-center font-bold">Login</Text>
+              </TouchableOpacity>
+            </View>
 
             {/* Sign Up link */}
             <View className="w-full flex flex-row justify-start mt-2">

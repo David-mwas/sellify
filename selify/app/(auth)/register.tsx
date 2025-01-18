@@ -22,6 +22,7 @@ import { Colors } from "@/constants/Colors"; // Custom colors based on themes
 import { useLocation } from "@/hooks/useLocation";
 import { LocationObject } from "@/constants/types";
 import { usePushNotificationToken } from "@/hooks/useExpoPushToken";
+import { StatusBar } from "expo-status-bar";
 
 export default function register() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,9 @@ export default function register() {
   };
   if (error || errorMsg) {
     Alert.alert("Error", error ?? errorMsg ?? "Unknown error");
+  }
+  if (errorMsg) {
+    Alert.alert("Error", errorMsg);
   }
 
   const handleSubmit = () => {
@@ -130,6 +134,7 @@ export default function register() {
 
   return (
     <SafeAreaView style={{ backgroundColor }} className="flex-1">
+      <StatusBar style={isDarkMode ? "light" : "dark"} />
       <KeyboardAvoidingView
         className="flex justify-center items-center h-screen px-4 space-y-6"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -249,12 +254,16 @@ export default function register() {
             </View>
 
             {/* Register button */}
-            <TouchableOpacity
-              className="bg-[#c58343cc] rounded-lg w-full px-4 py-3"
-              onPress={handleSubmit}
-            >
-              <Text className="text-white text-center font-bold">Register</Text>
-            </TouchableOpacity>
+            <View className="w-full flex flex-row justify-center items-center ">
+              <TouchableOpacity
+                className="bg-[#c58343cc] rounded-lg w-full px-4 py-4"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-center font-bold">
+                  Register
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             {/* Login link below the Register button */}
             <View className="w-full flex flex-row justify-start mt-2">
