@@ -277,7 +277,7 @@ function Index() {
           </View>
         )}
       </View>
-      {isLoadingCategories ||categoriesError? (
+      {isLoadingCategories || categoriesError ? (
         <FlashList
           data={Array(5).fill({})}
           horizontal
@@ -403,7 +403,7 @@ function Index() {
         )
       )}
 
-      {isLoadingProducts||productsError ? (
+      {isLoadingProducts || productsError ? (
         <View style={styles.productsContainer}>
           {[...Array(10)].map((_, index) => (
             <View key={index} style={styles.productShimmer}>
