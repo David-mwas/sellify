@@ -35,6 +35,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# app-example
 google-services.json
 auto-nipange-d99fa-firebase-adminsdk-kvhl1-8598dbc9f3.json
