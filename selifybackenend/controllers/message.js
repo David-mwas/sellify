@@ -52,6 +52,20 @@ exports.sendMessage = async (req, res) => {
 
     // Add the message to the "messages" subcollection
     await chatRef.collection("messages").add(messageData);
+    // send expo push notification
+    const receiverUser = await userModel.findById(receiver);
+    if (receiverUser && receiverUser.expoPushToken) {
+      const message = {
+        to: receiverUser.expoPushToken,
+        sound: "default",
+        title: "New message",
+        body: `New message from ${senderName.username}: "${message}"`,
+        data: { message, sender, receiver },
+      };
+
+      await admin.messaging().send(message);
+    }
+    
 
     res.status(201).json({ message: "Message sent", data: messageData });
   } catch (error) {
