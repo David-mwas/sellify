@@ -3,7 +3,7 @@
 
 # Selify - Sell items you no longer need
 
-Selify is a platform designed to help users declutter their lives by selling unused items and items they don't need anymore. 
+Selify is a App designed to help users declutter their lives by selling unused items and items they don't need anymore. 
 </div>
 
 <div align="center">
